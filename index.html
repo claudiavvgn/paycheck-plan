@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-nBFK9xGH+vBsAoLoc4HFxrNRxoClFTbQkg+kRHaiQ1Q=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-bPAf5T6UfzoCcvt0O1ZsJ+UVd0WU2tNy6K4SGLeGVDw=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -306,6 +306,15 @@ dialog label.rem{color:var(--ink);font-weight:500}
 .splitrow .del{width:32px}
 .splitrow input,.splitrow select{min-width:0}
 .carry{display:block;color:var(--muted);font-size:.74rem}
+.setstate{float:right;color:var(--muted);font-weight:600}
+.setstate.on{color:var(--good)}
+#tfaQr{display:block;margin:10px auto;background:#fff;padding:10px;border-radius:12px}
+#tfaQr[hidden]{display:none}
+.tfastep{font-weight:700;color:var(--ink)!important;font-size:.9rem!important;margin:12px 0 4px}
+#tfaLink{display:block;text-align:center;text-decoration:none;margin:6px 0}
+.tfakey summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.88rem;text-align:center}
+#tfaSecret{display:block;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:.85rem;user-select:all;-webkit-user-select:all}
+#tfaCode,#mfaCode{letter-spacing:.3em;font-variant-numeric:tabular-nums;font-size:1.2rem;text-align:center}
 #recurList .rrow{padding:10px 2px;border-bottom:1px solid var(--line)}
 #recurList .rrow:last-child{border-bottom:0}
 #recurList .top2{display:flex;justify-content:space-between;gap:8px}
@@ -339,6 +348,11 @@ dialog label.rem{color:var(--ink);font-weight:500}
     <button class="btn" id="aGo" type="submit">Sign in</button>
   </form>
   <button class="swap" id="aForgot" type="button">Forgot password?</button>
+  <form id="mfaForm" method="post" action="#" hidden>
+    <label for="mfaCode">6-digit code</label><input id="mfaCode" name="one-time-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" required>
+    <button class="btn" id="mfaGo" type="submit">Continue</button>
+    <button class="swap" id="mfaOut" type="button">Sign out</button>
+  </form>
   <p id="authMsg" role="status"></p>
 </div>
 
@@ -475,6 +489,7 @@ dialog label.rem{color:var(--ink);font-weight:500}
       <button id="changePayday">Change payday</button>
       <button id="catEdit2">Spending categories</button>
       <button id="changePw">Change password</button>
+      <button id="twoStep">Two-step login <span id="twoStepState" class="setstate"></span></button>
       <button id="backup">Download a backup of your plan</button>
       <button id="restore">Restore from a backup</button>
       <input type="file" id="restoreFile" accept="application/json,.json" hidden>
@@ -558,6 +573,29 @@ dialog label.rem{color:var(--ink);font-weight:500}
     <button class="btn" id="gSave">Save goal</button>
     <button class="btn ghost" id="gCancel">Cancel</button>
     <button class="btn danger" id="gDel">Delete</button>
+  </div>
+</dialog>
+
+<dialog id="tfaDlg">
+  <h2>Two-step login</h2>
+  <div id="tfaSetup" hidden>
+    <p class="sub">After your password, the app will also ask for a 6-digit code from an authenticator app (Apple Passwords, Google Authenticator or Authy). A stolen password alone won't open your plan.</p>
+    <p class="tfastep">1. Add Paycheck Plan to your authenticator app</p>
+    <a class="btn ghost" id="tfaLink" href="#" hidden>Set up on this phone</a>
+    <img id="tfaQr" alt="Code to scan with your authenticator app" width="190" height="190">
+    <details class="tfakey"><summary>Can't scan it?</summary><p class="note">Type this setup key into your authenticator app:</p><code id="tfaSecret"></code></details>
+    <label for="tfaCode" class="tfastep">2. Enter the 6-digit code it shows</label>
+    <input id="tfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*">
+  </div>
+  <div id="tfaOn" hidden>
+    <p class="sub">Two-step login is on. When you sign in fresh, the app asks for the 6-digit code from your authenticator app. This phone stays signed in like before.</p>
+    <p class="note">Lost your authenticator app? Sign in to supabase.com and follow the "If you're ever locked out" note you saved with this update.</p>
+  </div>
+  <p class="note" id="tfaMsg" role="status"></p>
+  <div class="actions">
+    <button class="btn" id="tfaVerify" hidden>Turn on</button>
+    <button class="btn danger" id="tfaOff" hidden>Turn off</button>
+    <button class="btn ghost" id="tfaClose">Close</button>
   </div>
 </dialog>
 
@@ -1878,6 +1916,96 @@ $('authForm').onsubmit=async e=>{
   }catch(err){ showAuth(err.message==='Invalid login credentials'?"That email and password don't match.":(err.message||'Something went wrong. Try again.'),true); }
   $('aGo').disabled=false;
 };
+// ---- two-step login (a 6-digit code from an authenticator app) ----
+let mfaThenPw=false;
+async function mfaFactors(){
+  const {data,error}=await sb.auth.mfa.listFactors(); if(error) throw error;
+  const all=(data&&(data.all||data.totp))||[];
+  return {verified:all.filter(f=>f.factor_type==='totp'&&f.status==='verified'), unverified:all.filter(f=>f.status!=='verified')};
+}
+// decides whether you go straight in or need your code first
+async function gate(session,thenPw){
+  if(!session||!session.user){ if(!startedFor) showAuth(); return; }
+  try{
+    const {data}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(data&&data.nextLevel==='aal2'&&data.currentLevel!=='aal2'){ showMfa(thenPw); return; }
+  }catch(e){}
+  startApp(session.user); if(thenPw) setTimeout(()=>openPw(true),50);
+}
+function showMfa(thenPw){
+  showAuth(''); mfaThenPw=!!thenPw;
+  $('authForm').hidden=true; $('aForgot').hidden=true; $('mfaForm').hidden=false;
+  $('authSub').textContent='Enter the 6-digit code from your authenticator app.';
+  $('mfaCode').value=''; setTimeout(()=>$('mfaCode').focus(),50);
+}
+$('mfaForm').onsubmit=async e=>{
+  e.preventDefault(); const code=$('mfaCode').value.replace(/\D/g,'');
+  if(code.length!==6){ showAuth('Enter all 6 digits.',true); return; }
+  $('mfaGo').disabled=true; $('authMsg').className=''; $('authMsg').textContent='Checking…';
+  try{
+    const f=(await mfaFactors()).verified[0]; if(!f) throw new Error("Two-step login isn't set up on this account.");
+    const ch=await sb.auth.mfa.challenge({factorId:f.id}); if(ch.error) throw ch.error;
+    const v=await sb.auth.mfa.verify({factorId:f.id,challengeId:ch.data.id,code}); if(v.error) throw v.error;
+    const {data:{session}}=await sb.auth.getSession();
+    $('mfaForm').hidden=true; $('authForm').hidden=false; $('aForgot').hidden=false; $('authSub').textContent='Sign in to see your plan.';
+    startApp(session.user); if(mfaThenPw) setTimeout(()=>openPw(true),50);
+  }catch(err){ showAuth(/invalid|expired|code/i.test(String(err&&err.message))?"That code didn't work. Use the newest code in your app (they change every 30 seconds).":(err&&err.message)||"Couldn't check that code. Try again.",true); }
+  $('mfaGo').disabled=false;
+};
+$('mfaOut').onclick=async()=>{ try{ await sb.auth.signOut(); }catch(e){} location.reload(); };
+
+// turning it on and off (Settings)
+let tfaPending=null, tfaFactor=null, demoTfa=false;
+function tfaMode(m){ // 'setup' | 'on' | 'loading'
+  $('tfaSetup').hidden=m!=='setup'; $('tfaOn').hidden=m!=='on';
+  $('tfaVerify').hidden=m!=='setup'; $('tfaOff').hidden=m!=='on';
+}
+function setTfaLabel(on){ $('twoStepState').textContent=on?'On':'Off'; $('twoStepState').className='setstate'+(on?' on':''); }
+async function refreshTfaLabel(){ if(DEMO){ setTfaLabel(demoTfa); return; } try{ setTfaLabel((await mfaFactors()).verified.length>0); }catch(e){} }
+function showQr(qr,secret,uri){
+  let src=''; const q=String(qr||'');
+  if(q.startsWith('data:image/svg+xml')){ const i=q.indexOf(','), body=q.slice(i+1); let svgText=body; try{ svgText=decodeURIComponent(body.replace(/%(?![0-9A-Fa-f]{2})/g,'%25')); }catch(e){} src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgText); }
+  else if(q.trim().startsWith('<svg')) src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(q);
+  $('tfaQr').hidden=!src; if(src) $('tfaQr').src=src;
+  $('tfaSecret').textContent=String(secret||'');
+  const u=String(uri||''); $('tfaLink').hidden=!/^otpauth:\/\//i.test(u); if(!$('tfaLink').hidden) $('tfaLink').href=u;
+}
+$('twoStep').onclick=async()=>{
+  $('tfaMsg').textContent=''; $('tfaCode').value=''; tfaPending=null; tfaFactor=null;
+  if(DEMO){ // preview: shows how it looks, nothing is set up
+    if(demoTfa) tfaMode('on'); else { tfaMode('setup'); showQr('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" shape-rendering="crispEdges"><path d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z" fill="#111"/><path d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z" fill="#fff"/><path d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM9 1h2v2H9zM8 4h3v1H8zM9 8h4v2H9zM14 9h2v3h-2zM8 12h2v4H8zM12 14h5v2h-5zM17 17h3v3h-3zM11 18h3v2h-3z" fill="#111"/></svg>','PREVIEW-ONLY-KEY','otpauth://totp/Paycheck%20Plan:preview?secret=PREVIEW'); }
+    $('tfaDlg').showModal(); return;
+  }
+  tfaMode('loading'); $('tfaMsg').textContent='Loading…'; $('tfaDlg').showModal();
+  try{
+    const st=await mfaFactors();
+    for(const f of st.unverified){ try{ await sb.auth.mfa.unenroll({factorId:f.id}); }catch(e){} } // clear any half-finished setup
+    if(st.verified.length){ tfaFactor=st.verified[0].id; tfaMode('on'); $('tfaMsg').textContent=''; return; }
+    const {data,error}=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'Paycheck Plan '+Date.now().toString(36)}); if(error) throw error;
+    tfaPending=data.id; showQr(data.totp&&data.totp.qr_code,data.totp&&data.totp.secret,data.totp&&data.totp.uri);
+    tfaMode('setup'); $('tfaMsg').textContent='';
+  }catch(err){ $('tfaMsg').textContent="Couldn't open two-step login: "+((err&&err.message)||'try again in a minute.'); }
+};
+$('tfaVerify').onclick=async()=>{
+  const code=$('tfaCode').value.replace(/\D/g,''); if(code.length!==6){ $('tfaMsg').textContent='Enter the 6-digit code from your authenticator app.'; return; }
+  if(DEMO){ demoTfa=true; $('tfaDlg').close(); setTfaLabel(true); status('Two-step login is on (preview only).'); return; }
+  $('tfaVerify').disabled=true; $('tfaMsg').textContent='Checking…';
+  try{
+    const ch=await sb.auth.mfa.challenge({factorId:tfaPending}); if(ch.error) throw ch.error;
+    const v=await sb.auth.mfa.verify({factorId:tfaPending,challengeId:ch.data.id,code}); if(v.error) throw v.error;
+    tfaPending=null; $('tfaDlg').close(); setTfaLabel(true); status('Two-step login is on. Keep your authenticator app safe.');
+  }catch(err){ $('tfaMsg').textContent=/invalid|expired|code/i.test(String(err&&err.message))?"That code didn't work. Use the newest code (they change every 30 seconds).":(err&&err.message)||'Try again.'; }
+  $('tfaVerify').disabled=false;
+};
+$('tfaOff').onclick=async()=>{
+  if(!confirm('Turn off two-step login? Signing in will only need your password again.')) return;
+  if(DEMO){ demoTfa=false; $('tfaDlg').close(); setTfaLabel(false); return; }
+  try{ const {error}=await sb.auth.mfa.unenroll({factorId:tfaFactor}); if(error) throw error; try{ await sb.auth.refreshSession(); }catch(e){}
+    $('tfaDlg').close(); setTfaLabel(false); status('Two-step login is off.'); }
+  catch(err){ $('tfaMsg').textContent="Couldn't turn it off: "+((err&&err.message)||'try again.'); }
+};
+$('tfaClose').onclick=async()=>{ const pend=tfaPending; tfaPending=null; $('tfaDlg').close(); if(pend&&!DEMO){ try{ await sb.auth.mfa.unenroll({factorId:pend}); }catch(e){} } };
+
 async function openPw(fromReset){
   if(DEMO){ status('Changing your password is turned off in the preview.'); return; }
   $('pwTitle').textContent=fromReset?'Set a new password':'Change password';
@@ -1931,7 +2059,7 @@ async function reloadAfterConflict(){
   status('Your plan was changed on another device, so this one now shows the newest version. If your last change is missing, make it again.',true);
 }
 
-function showApp(){ $('auth').hidden=true; $('app').hidden=false; $('tabbar').hidden=false; showTab(tab); }
+function showApp(){ $('auth').hidden=true; $('app').hidden=false; $('tabbar').hidden=false; showTab(tab); refreshTfaLabel(); }
 async function startApp(user){
   if(startedFor===user.id) return; startedFor=user.id;
   state=readLocal()||blank(); showApp();
@@ -1968,10 +2096,10 @@ if(DEMO){
   else {
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   sb.auth.onAuthStateChange((event,session)=>{
-    if(event==='PASSWORD_RECOVERY'){ if(session&&session.user) startApp(session.user); setTimeout(()=>openPw(true),50); return; }
     if(event==='SIGNED_OUT'&&startedFor){ location.reload(); return; }
-    if(session&&session.user) startApp(session.user);
-    else if(!startedFor) showAuth();
+    if(event==='MFA_CHALLENGE_VERIFIED') return; // the code form carries on from here
+    if(startedFor&&event!=='PASSWORD_RECOVERY') return;
+    setTimeout(()=>gate(session,event==='PASSWORD_RECOVERY'),0); // never call sign-in functions inside this callback
   });
   }
 }
