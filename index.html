@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cf8MvXQNZW6jVbIkhGEM/Lc/BgEB+vqw1ui2wYWrIvY=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Dwd9R98aLUrNyz/qtfnl71cQPHH9gOwM0JoljreCqdo=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -15,9 +15,10 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-cc-512.png">
 <meta name="theme-color" content="#F3F2EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111719" media="(prefers-color-scheme: dark)">
-<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha256-1qXEQUpdTOZG2cHeIjqnBn0/9mTBU5T/63/P/HYzVKM=" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://xykgkhnegdmulyxqjhfc.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -67,8 +68,10 @@ button{cursor:pointer}
 .hero{position:relative;width:min(300px,78vw);aspect-ratio:1;margin:12px auto 4px}
 .hero svg{width:100%;height:100%;transform:rotate(-90deg)}
 .legend .pct{color:var(--muted);font-weight:600}
-.hero circle{transition:stroke-dasharray .5s ease, stroke-dashoffset .5s ease}
-.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 22%}
+.hero circle{transition:stroke-dasharray .5s ease, stroke-dashoffset .5s ease, stroke-width .2s ease, opacity .2s ease}
+#donut [data-sl]{cursor:pointer}
+#donut .dim{opacity:.28}
+.center{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 22%}
 .big{font-size:clamp(2.1rem,9.5vw,2.8rem);font-weight:800;letter-spacing:-.02em;line-height:1}
 .big.neg{color:var(--bad)}
 .center .lbl{color:var(--muted);font-size:.9rem;margin-top:6px}
@@ -76,6 +79,25 @@ button{cursor:pointer}
 
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin:8px 0 24px;padding:0;list-style:none;font-size:.85rem}
 .legend li{display:flex;align-items:center;gap:6px}
+.legend li button{display:flex;align-items:center;gap:6px;background:none;border:0;padding:4px 6px;margin:-4px -6px;border-radius:8px;transition:opacity .2s}
+.legend.sel li button:not(.on){opacity:.4}
+.legend li button.on{background:var(--surface);box-shadow:0 0 0 1.5px var(--line)}
+.pieinfo{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px 4px;margin:-12px 0 20px;font-size:.9rem}
+.pieinfo .ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-right:30px;margin-bottom:8px}
+.pieinfo .ph b{font-weight:800}
+.pieinfo .ph small{color:var(--muted);font-weight:500;font-size:.8rem}
+.pieinfo .pclose{position:absolute;top:5px;right:5px;width:34px;height:34px;background:none;border:0;color:var(--muted);font-size:1.35rem;line-height:1;border-radius:8px}
+.pieinfo .prow{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:9px 0;text-align:left}
+.pieinfo .prow b{display:flex;align-items:center;gap:6px;font-weight:600}
+.pieinfo .prow small{display:block;color:var(--muted);font-size:.78rem;margin-top:1px}
+.pieinfo .pmath{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.pieinfo .pmath.tot{font-weight:800;border-top:1.5px solid var(--ink)}
+.pieinfo .pmath.tot.neg span:last-child{color:var(--bad)}
+.pieinfo .plim{margin:-4px 0 8px;color:var(--muted);font-size:.82rem}
+.pieinfo .plim.over{color:var(--bad)}
+.pieinfo .pfoot{border-top:1px solid var(--line);padding:4px 0;text-align:right}
+.pieinfo .pfoot button{background:none;border:0;color:var(--accent);font-weight:700;padding:8px 0;text-decoration:underline}
+.pieinfo .pmore{color:var(--muted);font-size:.8rem;margin:0;padding:6px 0;border-top:1px solid var(--line)}
 .dot{width:10px;height:10px;border-radius:50%;flex:none}
 .legend b{font-weight:700}
 
@@ -356,7 +378,22 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
 .tfakey summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.88rem;text-align:center}
 #tfaSecret{display:block;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:.85rem;user-select:all;-webkit-user-select:all}
 #tfaCode,#mfaCode{letter-spacing:.3em;font-variant-numeric:tabular-nums;font-size:1.2rem;text-align:center}
-#recurList .rrow{padding:10px 2px;border-bottom:1px solid var(--line)}
+#recurList .rrow,#billAskList .rrow{padding:10px 2px;border-bottom:1px solid var(--line)}
+#billAskList .rrow:last-child{border-bottom:0}
+#billAskList .top2{display:flex;justify-content:space-between;gap:8px}
+#billAskList .top2 b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+#billAskList small{color:var(--muted);font-size:.8rem}
+#billAskList .acts{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:4px}
+#billAskList .acts button{background:none;border:0;padding:6px 0;font-weight:800;color:var(--accent);text-align:left}
+#billAskList .acts button.no{color:var(--muted);font-weight:700}
+.askbox{background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:10px 12px 4px;margin:0 0 14px}
+.askbox h3{margin:0;font-size:.95rem}
+.askbox .sub{margin:2px 0 4px;font-size:.84rem}
+.bill-actual .auto{color:var(--good);font-weight:600}
+#txFrom{margin:-6px 0 12px;font-size:.85rem;color:var(--muted)}
+#txAuto{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 12px;font-size:.85rem;color:var(--ink)}
+#txAuto[hidden]{display:none}
+#txAuto button{background:none;border:0;color:var(--accent);font-weight:700;padding:4px 0;white-space:nowrap;text-decoration:underline}
 #recurList .rrow:last-child{border-bottom:0}
 #recurList .top2{display:flex;justify-content:space-between;gap:8px}
 #recurList .top2 b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
@@ -427,6 +464,7 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
       </div>
     </div>
     <ul class="legend" id="legend"></ul>
+    <div class="pieinfo" id="pieInfo" hidden aria-live="polite"></div>
     <p class="extranote" id="payNote" hidden></p>
     <p class="extranote" id="extraNote" hidden></p>
     <div class="sum">
@@ -492,6 +530,7 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
       <p class="billsum" id="billSum"></p>
       <p class="note" id="subsSum" hidden style="margin:-2px 0 8px"></p>
       <p class="sub">In order of due date. Tap the circle when it's paid, or tap a bill to change it.</p>
+      <div class="askbox" id="billAsk" hidden><h3>Is this a bill payment?</h3><p class="sub">These charges look like one of your bills, but the app isn't sure which. Pick the bill, or tell the app it isn't one.</p><div id="billAskList"></div></div>
       <div id="bills"></div>
       <div class="actions"><button class="btn" id="addBill">Add a bill</button></div>
     </section>
@@ -554,6 +593,8 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
 <dialog id="txDlg">
   <h2 id="txTitle">Transaction</h2>
   <p class="sub" id="txSub"></p>
+  <p id="txFrom" hidden></p>
+  <p id="txAuto" hidden><span id="txAutoText"></span><button type="button" id="txUnmatch">Not this bill</button></p>
   <label for="txUse">How should this count?</label>
   <select id="txUse"></select>
   <div id="txCatWrap"><label for="txCat">Category</label><select id="txCat"></select></div>
@@ -785,7 +826,7 @@ const safeId=v=>/^[A-Za-z0-9_-]{1,40}$/.test(String(v||''))?String(v):uid();
 let state=null, dbRef=null, saveTimer=null, writing=Promise.resolve(), editing=null, offset=0;
 let tab='plan'; try{ tab=localStorage.getItem('pp-tab')||'plan'; }catch(e){}
 
-function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{}}}
+function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{},autoTx:{},noAuto:{}}}
 const BAD_KEYS=new Set(['__proto__','constructor','prototype']);
 const num=v=>{ v=+v; return isFinite(v)?v:0; };
 // copies an {id: value} map, keeping only safe keys and values that pass the check
@@ -827,7 +868,7 @@ function normalize(d){
       const ok=parts.filter(isObj).slice(0,6).map(x=>({cat:/^[a-z0-9_]{1,24}$/.test(String(x.cat))?String(x.cat):'other',amt:Math.round(Math.max(0,num(x.amt))*100)/100})).filter(x=>x.amt>0);
       if(ok.length>=2) T[id]=ok; } s.txSplit=T; }
   s.rollover=cleanMap(s.rollover,v=>keyOk(v)||undefined,k=>/^[a-z0-9_]{1,24}$/.test(k));
-  for(const k of ['recapSeen','notRecurring']) s[k]=cleanMap(s[k],v=>v?1:undefined);
+  for(const k of ['recapSeen','notRecurring','autoTx','noAuto']) s[k]=cleanMap(s[k],v=>v?1:undefined);
   // keep only what the app knows about (drops anything unexpected, e.g. from an edited backup)
   const clean={}; for(const k of Object.keys(blank())) clean[k]=s[k];
   return clean;
@@ -924,21 +965,43 @@ function billsFor(p){
   });
   return out;
 }
-function actualPaid(p){ // total of bank payments matched to each bill, by the paycheck they count toward
+let _mt={};
+function matchedFor(p){ // bank payments matched to each bill, by the paycheck they count toward (pending ones too)
+  if(_mt[p.key]) return _mt[p.key];
   const out={}; if(!state.anchor) return out;
   const lo=keyD(addD(p.start,-45)), hi=keyD(addD(p.end,45));
   for(const t of bankTx){
     if(t.amount<=0||t.date<lo||t.date>=hi||(state.bankFrom&&t.date<state.bankFrom)) continue;
     const u=useOf(t); if(!u.startsWith('bill:')) continue;
     const id=u.slice(5), bill=state.bills.find(b=>b.id===id); if(!bill||billPeriodKey(bill,t.date)!==p.key) continue;
-    out[id]=(out[id]||0)+t.amount;
+    (out[id]=out[id]||[]).push(t);
   }
-  return out;
+  return _mt[p.key]=out;
+}
+function actualPaid(p){ // total of bank payments matched to each bill
+  const out={}, m=matchedFor(p); for(const id of Object.keys(m)) out[id]=m[id].reduce((a,t)=>a+t.amount,0); return out;
+}
+// 'paid', 'pending' (a matched payment that hasn't finished going through yet) or ''
+function billPaidState(id,p){
+  const m=matchedFor(p)[id]||[];
+  if((state.paid[p.key]||[]).includes(id)||m.some(t=>!t.pending)) return 'paid';
+  return m.length?'pending':'';
 }
 
 // ---- bank transactions ----
-let bankTx=[], banks=[], accounts=[], showSkipped=false, bankBusy=false, lastSync=0;
-try{ const a=JSON.parse(localStorage.getItem('pp-accounts')||'null'); if(!DEMO&&Array.isArray(a)) accounts=a; }catch(e){}
+let bankTx=[], banks=[], accounts=[], showSkipped=false, bankBusy=false, bankAgain=false, lastSync=0;
+// last-known balances and bank names, so they show the moment the app opens (fresh ones follow a moment later)
+const DEVICE_KEYS=[LS,'pp-accounts','pp-banks','pp-acct-open','plaid_link_token','plaid_link_mode','pp-owner'];
+function clearDeviceData(){ try{ DEVICE_KEYS.forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+function readBankCache(){
+  if(DEMO) return;
+  try{ const a=JSON.parse(localStorage.getItem('pp-accounts')||'null'); if(Array.isArray(a)) accounts=a.filter(isObj).slice(0,60); }catch(e){}
+  try{ const b=JSON.parse(localStorage.getItem('pp-banks')||'null'); if(Array.isArray(b)) banks=b.filter(isObj).slice(0,20).map(x=>({item_id:String(x.item_id||'').slice(0,200),institution:String(x.institution||'').slice(0,80),last_synced:String(x.last_synced||'').slice(0,40),status:String(x.status||'').slice(0,200)})); }catch(e){}
+}
+function writeBankCache(){
+  if(DEMO) return;
+  try{ localStorage.setItem('pp-accounts',JSON.stringify(accounts)); localStorage.setItem('pp-banks',JSON.stringify(banks.map(b=>({item_id:b.item_id,institution:b.institution,last_synced:b.last_synced,status:b.status})))); }catch(e){}
+}
 const SKIP_CATS=new Set(['INCOME','TRANSFER_IN','TRANSFER_OUT','LOAN_PAYMENTS','RENT_AND_UTILITIES']);
 // store names: letters only, first 6 words (older versions used 3 words; those rules still work for purchases)
 const mkey=n=>String(n||'').toLowerCase().replace(/[^a-z]+/g,' ').trim().split(' ').slice(0,6).join(' ');
@@ -1048,15 +1111,78 @@ function billPeriodKey(bill,dateStr){ // the paycheck where this bill is due clo
       if(Math.abs(g)<bestGap){bestGap=Math.abs(g); best=q.key;} } }
   return best&&bestGap<=31*DAY?best:period(i).key;
 }
-function applyBillMatches(){ // a transaction you've matched to a bill checks that bill off
+// ---- matching bank payments to bills on their own ----
+const MATCH_STOP=new Set(['the','and','bill','bills','payment','payments','pymt','pay','autopay','auto','online','monthly','inc','llc','ltd','com','www','ach','debit','credit','card','purchase','recurring','service','services','corp','company','for','web','mobile','des','ppd','recur','transfer']);
+const mwords=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+function namesMatch(bill,tx){ // "NV Energy" ~ "NV ENERGY SOUTH", "Netflix" ~ "Netflix.com"
+  const bw=mwords(bill), tw=mwords(tx); if(!bw.length||!tw.length) return false;
+  const bc=bw.join(''), tc=tw.join('');
+  const startsAt=(words,whole)=>words.some((_,i)=>words.slice(i).join('').startsWith(whole));
+  if(bc.length>=3&&startsAt(tw,bc)) return true;
+  if(tc.length>=4&&startsAt(bw,tc)) return true;
+  const keep=w=>w.length>=4&&!MATCH_STOP.has(w)&&!/^\d+$/.test(w), ts=new Set(tw.filter(keep));
+  return bw.filter(keep).some(w=>ts.has(w));
+}
+function dueNear(b0,ds){ // this bill as it was then, if one of its due dates is within about a week of the charge
+  const d=parseD(ds), i=Math.floor(Math.round((d-parseD(state.anchor))/DAY)/14);
+  const v0=billAt(b0,period(i).key); if(v0&&(v0.freq==='paycheck'||v0.freq==='weekly')) return v0;
+  for(let j=i-2;j<=i+2;j++){ const q=period(j), v=billAt(b0,q.key); if(!v) continue;
+    for(const due of dueDates(v,q)) if(Math.abs(due-d)<=7*DAY) return v; }
+  return null;
+}
+let billAsks=[];
+function autoMatchBills(){ // a charge that clearly matches one bill is matched to it; unclear ones are asked about instead
+  billAsks=[]; if(!state.anchor||!bankTx.length||!state.bills.length) return false;
+  const lo=keyD(addD(today(),-45)), taken=new Set(), cand=[];
+  for(const t of bankTx){ const u=useOf(t); if(!u.startsWith('bill:')) continue;
+    const b=state.bills.find(x=>x.id===u.slice(5)), k=b&&billPeriodKey(b,t.date); if(k) taken.add(b.id+'|'+k); }
+  for(const t of bankTx){
+    if(!(t.amount>0)||t.date<lo||(state.bankFrom&&t.date<state.bankFrom)||state.txSet[t.id]!=null||state.noAuto[t.id]||ruleFor(t)!=null||isCardPayment(t)) continue;
+    const hits=[];
+    for(const b0 of state.bills){
+      if(!namesMatch(b0.name,t.name)) continue;
+      const v=dueNear(b0,t.date); if(!v||!(v.amount>0)||Math.abs(t.amount-v.amount)>Math.max(5,v.amount*0.3)) continue;
+      const k=billPeriodKey(b0,t.date); if(!k) continue;
+      const multi=v.freq==='paycheck'||v.freq==='weekly'||v.freq==='twice';
+      if(!multi&&taken.has(b0.id+'|'+k)) continue; // already paid by another charge
+      hits.push({b:b0,k,multi});
+    }
+    if(hits.length) cand.push({t,hits});
+  }
+  const per={}; // two charges that both look like the same bill: ask about both
+  for(const c of cand) if(c.hits.length===1&&!c.hits[0].multi){ const key=c.hits[0].b.id+'|'+c.hits[0].k; per[key]=(per[key]||0)+1; }
   let changed=false;
+  for(const c of cand){ const h=c.hits[0];
+    if(c.hits.length===1&&(h.multi||per[h.b.id+'|'+h.k]===1)){ state.txSet[c.t.id]='bill:'+h.b.id; state.autoTx[c.t.id]=1; changed=true; }
+    else billAsks.push({t:c.t,bills:c.hits.map(x=>x.b)});
+  }
+  return changed;
+}
+function renderBillAsk(){
+  const list=billAsks.filter(a=>bankTx.includes(a.t)&&state.txSet[a.t.id]==null&&!state.noAuto[a.t.id]).slice(0,5);
+  $('billAsk').hidden=!list.length; if(!list.length){ $('billAskList').innerHTML=''; return; }
+  $('billAskList').innerHTML=list.map(a=>`<div class="rrow"><div class="top2"><b>${esc(a.t.name||'Payment')}</b><span class="amt">${money(a.t.amount)}</span></div><small>${esc(fmt(parseD(a.t.date),{weekday:'short',month:'short',day:'numeric'}))} · ${esc(a.t.institution||'Bank')}${a.t.pending?' · pending':''}</small><div class="acts">${a.bills.map(b=>`<button type="button" data-askyes="${esc(a.t.id)}" data-bill="${esc(b.id)}">${esc(b.name)}</button>`).join('')}<button type="button" class="no" data-askno="${esc(a.t.id)}">Not a bill</button></div></div>`).join('');
+}
+$('billAskList').onclick=e=>{
+  const y=e.target.closest('[data-askyes]'), n=e.target.closest('[data-askno]');
+  if(y){ const t=bankTx.find(x=>x.id===y.dataset.askyes), b=state.bills.find(x=>x.id===y.dataset.bill); if(!t||!b) return;
+    state.txSet[t.id]='bill:'+b.id; state.seen[t.id]=1; delete state.autoTx[t.id]; applyBillMatches(); save(); status(`Matched to ${b.name}.`); return; }
+  if(n){ state.noAuto[n.dataset.askno]=1; save(); }
+};
+// unmatch bank payments from a bill (and don't guess them again)
+function unmatchTx(t){
+  if(state.autoTx[t.id]) delete state.txSet[t.id]; else state.txSet[t.id]=defaultUse(t);
+  delete state.autoTx[t.id]; state.noAuto[t.id]=1;
+}
+function applyBillMatches(){ // a transaction you've matched to a bill checks that bill off
+  let changed=autoMatchBills();
   for(const t of bankTx){
     if(t.pending||(state.bankFrom&&t.date<state.bankFrom)) continue;
     const u=useOf(t); if(!u.startsWith('bill:')) continue;
     const id=u.slice(5), bill=state.bills.find(b=>b.id===id), k=billPeriodKey(bill,t.date); if(!k) continue;
     const list=new Set(state.paid[k]||[]); if(!list.has(id)){list.add(id); state.paid[k]=[...list]; changed=true;}
   }
-  if(changed){prune(); save();}
+  if(changed){prune(); save();} else renderBillAsk();
 }
 
 // ---- figures for one paycheck ----
@@ -1078,6 +1204,54 @@ function figuresNow(p){
   return {items,spends,bank,bills,spent,extras,extra,payTx,pay,income,left:income-bills-spent};
 }
 
+// ---- pie chart details ----
+let pieSel=null;
+function pieInfoHtml(s,p,F,pState){
+  const close='<button type="button" class="pclose" data-pclose aria-label="Close details">×</button>';
+  const head=(t,amt,extra)=>`${close}<div class="ph"><b>${esc(t)}</b><span><b>${money(amt)}</b>${extra?` <small>· ${esc(extra)}</small>`:''}</span></div>`;
+  const foot=(go,txt)=>`<div class="pfoot"><button type="button" data-go="${go}">${esc(txt)}</button></div>`;
+  const dshort=d=>fmt(d,{weekday:'short',month:'short',day:'numeric'});
+  if(s.id.startsWith('b:')){ // bills in this category
+    const k=s.id.slice(2), rows=F.items.filter(x=>x.b.cat===k&&x.amt>0).sort((a,c)=>(a.date||0)-(c.date||0));
+    return head(s.label,rows.reduce((a,x)=>a+x.amt,0),rows.length+' bill'+(rows.length===1?'':'s'))+rows.map(x=>{
+      const st=pState[x.b.id]==='pending'?'paid · pending':pState[x.b.id]?'paid':'not paid yet', when=x.date?'Due '+dshort(x.date):(x.note||'');
+      return `<button type="button" class="prow" data-pedit="${esc(x.b.id)}" data-key="${esc(p.key)}"><span><b>${esc(x.b.name)}</b><small>${esc(when?when+' · '+st:st)}</small></span><span class="amt">${money(x.amt)}</span></button>`;
+    }).join('')+foot('bills','See all bills');
+  }
+  if(s.sp){ // purchases in this spending category (or group of small ones)
+    const set=s.cats?new Set(s.cats):null, inSet=c=>!set||set.has(c), many=!set||set.size>1, list=[];
+    for(const x of F.spends){ const c=catAt(x.cat,p.key); if(inSet(c)) list.push({name:x.name,sub:'Added by you',amt:x.amount,date:'',attr:`data-pent="${esc(x.id)}"`,c}); }
+    for(const t of F.bank.use) for(const [c,a] of txParts(t)) if(inSet(c)) list.push({name:t.name||'Purchase',sub:fmt(parseD(t.date),{month:'short',day:'numeric'})+(t.pending?' · pending':'')+(Math.abs(a-t.amount)>=0.01?' · part of '+money(t.amount):''),amt:a,date:t.date,attr:`data-ptx="${esc(t.id)}"`,c});
+    list.sort((a,c)=>a.date<c.date?1:a.date>c.date?-1:0);
+    const total=list.reduce((a,x)=>a+x.amt,0);
+    let lim='';
+    if(set&&set.size===1){ const L=limitFor(s.cats[0],p); if(L>0){ const r=L-total; lim=`<p class="plim ${r<0?'over':''}">Limit ${money(L)} · ${r>=0?money(r)+' left':money(-r)+' over'}</p>`; } }
+    return head(s.label,total,list.length+' purchase'+(list.length===1?'':'s'))+lim+list.slice(0,8).map(x=>`<button type="button" class="prow" ${x.attr}><span><b>${many?cdot(x.c):''}${esc(x.name)}</b><small>${esc(x.sub)}</small></span><span class="amt${x.amt<0?' good':''}">${x.amt<0?'+'+money(-x.amt):money(x.amt)}</span></button>`).join('')
+      +(list.length>8?`<p class="pmore">+ ${list.length-8} more</p>`:'')+foot('spending','See all in Spending');
+  }
+  // what's left: the math
+  const line=(l,v,sign)=>`<div class="pmath"><span>${esc(l)}</span><span>${sign}${money(Math.abs(v))}</span></div>`;
+  return head(F.left<0?'Over this paycheck':'Left this paycheck',F.left)
+    +line(F.payTx.length?'Paycheck (from your bank)':'Paycheck (planned)',F.pay,'')
+    +(F.extra>0?line('Extra money',F.extra,'+ '):'')
+    +line('Bills',F.bills,'− ')
+    +line(F.spent<0?'Spending (refunds)':'Spending',F.spent,F.spent<0?'+ ':'− ')
+    +`<div class="pmath tot${F.left<0?' neg':''}"><span>${F.left<0?'Over':'Left'}</span><span>${money(F.left)}</span></div>`;
+}
+function pickSlice(i){ const id=i===-1?'left':((render._slices||[])[i]||{}).id; if(!id) return; pieSel=pieSel===id?null:id; render(); }
+$('donut').addEventListener('click',e=>{ const c=e.target.closest('[data-sl]'); if(c) pickSlice(+c.dataset.sl); else if(pieSel){ pieSel=null; render(); } });
+$('legend').addEventListener('click',e=>{ const b=e.target.closest('[data-sl]'); if(b) pickSlice(+b.dataset.sl); });
+$('pieInfo').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-pedit]'); if(ed){ const b=state.bills.find(x=>x.id===ed.dataset.pedit); if(b) openDlg(b,ed.dataset.key); return; }
+  const tx=e.target.closest('[data-ptx]'); if(tx){ const t=bankTx.find(x=>x.id===tx.dataset.ptx); if(t) openTx(t); return; }
+  const en=e.target.closest('[data-pent]'); if(en){ openEntry('s',en.dataset.pent); return; }
+  if(e.target.closest('[data-go]')){ pieSel=null; return; } // the tab switch redraws
+  if(e.target.closest('[data-pclose]')){ pieSel=null; render(); }
+});
+document.addEventListener('click',e=>{ // tapping anywhere else closes the details
+  if(!pieSel||!e.target.isConnected||e.target.closest('#donut,#legend,#pieInfo,dialog')) return; pieSel=null; render();
+});
+
 // ---- tabs ----
 const TAB_TITLES={plan:'Paycheck plan',spending:'Spending',bills:'Bills',goals:'Goals'};
 function showTab(t){
@@ -1094,7 +1268,7 @@ $('tabbar').onclick=e=>{const b=e.target.closest('[data-tab]'); if(b) showTab(b.
 document.addEventListener('click',e=>{const g=e.target.closest('[data-go]'); if(g) showTab(g.dataset.go);});
 
 function render(){
-  _fig={}; _recur=null;
+  _fig={}; _mt={}; _recur=null;
   fillCatSelects();
   const ready=!!state.anchor;
   $('setup').hidden=ready;
@@ -1112,7 +1286,8 @@ function render(){
 
   const F=ready?figures(p):{items:[],spends:[],bank:{use:[],skip:[],extra:[],undecided:[]},bills:0,spent:0,extras:[],extra:0,payTx:[],pay:state.paycheck,income:state.paycheck,left:state.paycheck};
   const {items,spends,bank,bills,spent,extras,extra,payTx,pay,income,left}=F;
-  const paidSet=new Set(state.paid[p.key]||[]);
+  const pState={}; for(const x of items) pState[x.b.id]=ready?billPaidState(x.b.id,p):'';
+  const paidSet=new Set([...(state.paid[p.key]||[]),...Object.keys(pState).filter(id=>pState[id])]);
   const due=items.filter(x=>!paidSet.has(x.b.id)).reduce((a,x)=>a+x.amt,0);
   const saving=items.filter(x=>x.b.cat==='savings'||x.b.cat==='investing').reduce((a,x)=>a+x.amt,0);
   const newOnes=unseen();
@@ -1120,21 +1295,23 @@ function render(){
 
   // ===== PLAN =====
   const byCat={}; items.forEach(x=>{if(x.amt>0) byCat[x.b.cat]=(byCat[x.b.cat]||0)+x.amt});
-  const slices=Object.keys(CATS).filter(k=>byCat[k]).map(k=>({k,label:CATS[k].label,v:CATS[k].v,amt:byCat[k]}));
+  const slices=Object.keys(CATS).filter(k=>byCat[k]).map(k=>({id:'b:'+k,k,label:CATS[k].label,v:CATS[k].v,amt:byCat[k]}));
   if(spent>0){ // spending, broken down by category (small ones grouped)
     const tot=ready?catTotals(p):{}, parts=Object.entries(tot).filter(([,v])=>v>0.004).sort((a,c)=>c[1]-a[1]);
     const pos=parts.reduce((a,[,v])=>a+v,0), scale=pos>0?spent/pos:1; // refunds lower the total, so slices are scaled to what you actually spent
-    let rest=0; const main=[];
-    for(const [c,v] of parts){ if(c==='other'||main.length>=5||v<pos*0.04) rest+=v; else main.push([c,v]); }
-    main.forEach(([c,v])=>slices.push({label:cats()[c]||'Other',v:spendVar(c),amt:v*scale,sp:true}));
-    if(rest>0) slices.push({label:main.length?'Other spending':'Spent',v:'--s-other',amt:rest*scale,sp:true});
-    if(!parts.length) slices.push({label:'Spent',v:'--c-spent',amt:spent,sp:true});
+    let rest=0; const main=[], restCats=[];
+    for(const [c,v] of parts){ if(c==='other'||main.length>=5||v<pos*0.04){ rest+=v; restCats.push(c); } else main.push([c,v]); }
+    main.forEach(([c,v])=>slices.push({id:'s:'+c,cats:[c],label:cats()[c]||'Other',v:spendVar(c),amt:v*scale,sp:true}));
+    if(rest>0) slices.push({id:'s:_rest',cats:restCats,label:main.length?'Other spending':'Spent',v:'--s-other',amt:rest*scale,sp:true});
+    if(!parts.length) slices.push({id:'s:_all',cats:null,label:'Spent',v:'--c-spent',amt:spent,sp:true});
   }
-  if(left>0) slices.push({label:'Left',v:'--left',amt:left});
+  if(left>0) slices.push({id:'left',label:'Left',v:'--left',amt:left});
   const whole=Math.max(income,bills+spent)||1;
-  const R=78,C=2*Math.PI*R; let off=0, svg=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--left)" stroke-width="30"/>`;
-  slices.forEach(s=>{const len=s.amt/whole*C; svg+=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="var(${s.v})" stroke-width="30" stroke-dasharray="${Math.max(len-1.2,0.01)} ${C}" stroke-dashoffset="${-off}"/>`; off+=len;});
   const overBy=(bills+spent)-income;
+  if(pieSel&&!(slices.some(s=>s.id===pieSel)||(pieSel==='left'&&overBy>0))) pieSel=null; // that slice isn't in this paycheck
+  const selOn=!!pieSel;
+  const R=78,C=2*Math.PI*R; let off=0, svg=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--left)" stroke-width="30"${selOn?' class="dim"':''}/>`;
+  slices.forEach((s,i)=>{const len=s.amt/whole*C, on=s.id===pieSel; svg+=`<circle data-sl="${i}" cx="100" cy="100" r="${R}" fill="none" stroke="var(${s.v})" stroke-width="${on?38:30}" stroke-dasharray="${Math.max(len-1.2,0.01)} ${C}" stroke-dashoffset="${-off}"${selOn&&!on?' class="dim"':''}/>`; off+=len;});
   if(overBy>0){ // red arc over just the part past your pay
     const C2=2*Math.PI*98, start=income/whole*C2, len=Math.max(overBy/whole*C2,3);
     svg+=`<circle cx="100" cy="100" r="98" fill="none" stroke="var(--bad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${len} ${C2}" stroke-dashoffset="${-start}"/>`;
@@ -1147,7 +1324,11 @@ function render(){
   const fmtPct=v=>!isFinite(v)||v<=0?'':v<1?'<1%':Math.round(v)+'%';
   const pctFor=s=>!moIncome?'':s.k?fmtPct(moCat[s.k]/moIncome*100):s.sp?fmtPct(s.amt/state.paycheck*100):s.label==='Left'?fmtPct((moIncome-moBills)/moIncome*100-spent/state.paycheck*100):'';
   let spHead=false;
-  $('legend').innerHTML=slices.map(s=>{ const head=s.sp&&!spHead?(spHead=true,`<li class="lghead">Spent ${money(spent)}</li>`):''; return head+`<li><span class="dot" style="background:var(${s.v})"></span>${esc(s.label)} <b>${money(s.amt)}</b> <span class="pct">${pctFor(s)}</span></li>`; }).join('')+(overBy>0?`<li style="color:var(--bad)"><span class="dot" style="background:var(--bad)"></span>Over <b>${money(overBy)}</b></li>`:'');
+  $('legend').innerHTML=slices.map((s,i)=>{ const head=s.sp&&!spHead?(spHead=true,`<li class="lghead">Spent ${money(spent)}</li>`):''; const on=s.id===pieSel; return head+`<li><button type="button" data-sl="${i}" class="${on?'on':''}" aria-pressed="${on}" aria-controls="pieInfo"><span class="dot" style="background:var(${s.v})"></span>${esc(s.label)} <b>${money(s.amt)}</b> <span class="pct">${pctFor(s)}</span></button></li>`; }).join('')+(overBy>0?`<li style="color:var(--bad)"><button type="button" data-sl="-1" class="${pieSel==='left'?'on':''}" aria-pressed="${pieSel==='left'}" aria-controls="pieInfo"><span class="dot" style="background:var(--bad)"></span>Over <b>${money(overBy)}</b></button></li>`:'');
+  $('legend').classList.toggle('sel',selOn);
+  render._slices=slices;
+  const selSlice=pieSel==='left'?{id:'left',label:'Left'}:slices.find(s=>s.id===pieSel);
+  $('pieInfo').hidden=!selSlice||!ready; $('pieInfo').innerHTML=selSlice&&ready?pieInfoHtml(selSlice,p,F,pState):'';
   $('leftBig').textContent=money0(left);
   $('leftBig').classList.toggle('neg',left<0);
   $('leftLbl').textContent=left<0?'over this paycheck':'left this paycheck';
@@ -1165,6 +1346,7 @@ function render(){
   renderAccounts(); renderCardBox(ready&&offset===0,p,due); renderRecapBox(ready&&offset===0);
 
   // ===== BILLS (timeline by due date) =====
+  renderBillAsk();
   { const nPaid=items.filter(x=>paidSet.has(x.b.id)).length;
     $('billSum').textContent=items.length?(nPaid===items.length?'All paid':`${nPaid} of ${items.length} paid · ${money(due)} to go`):''; }
   if(!state.bills.length||(!items.length&&!state.bills.some(b=>!b.ended))) $('bills').innerHTML='<p class="empty">No bills yet. Add your first one below.</p>';
@@ -1177,7 +1359,7 @@ function render(){
       let when='', cls='ok';
       if(x.date){
         const n=Math.round((x.date-t0)/DAY), dstr=fmt(x.date,{weekday:'short',month:'short',day:'numeric'});
-        if(pd) when=dstr+' · paid';
+        if(pd) when=dstr+(pState[x.b.id]==='pending'?' · paid · pending':' · paid');
         else if(n===0){when='Due today'; cls='soon';}
         else if(n>0&&n<=3){when=`Due in ${n} day${n===1?'':'s'} · ${dstr}`; cls='soon';}
         else if(n>0) when=`Due ${dstr} · in ${n} days`;
@@ -1186,7 +1368,8 @@ function render(){
         if(x.note) when+=' · '+x.note;
       }
       let sub=x.date?`<span class="when ${cls}">${esc(when)}</span>`:x.note?`<span class="${x.warn?'tag':'due'}">${esc(x.note)}</span>`:'';
-      if(x.actual!=null) sub+=`<span class="bill-actual">${esc(x.est?(x.amt>x.actual?`${money(x.actual)} paid so far · estimate ${money(x.est)}`:`Actual from your bank · estimate was ${money(x.est)}`):'Paid from your bank')}</span>`;
+      if(x.actual!=null){ const mts=ready?(matchedFor(p)[x.b.id]||[]):[], auto=mts.some(t=>state.autoTx[t.id]), pend=pState[x.b.id]==='pending';
+        sub+=`<span class="bill-actual">${esc(x.est?(x.amt>x.actual?`${money(x.actual)} paid so far · estimate ${money(x.est)}`:`Actual from your bank · estimate was ${money(x.est)}`):'Paid from your bank')}${pend&&!x.date?' · pending':''}${auto?' · <span class="auto">Matched automatically</span>':''}</span>`; }
       return `<div class="row ${pd?'paid':''}"><label class="check ${pd?'on':''}"><input type="checkbox" data-paid="${x.b.id}" data-key="${p.key}" ${pd?'checked':''} aria-label="${esc(x.b.name)} paid"></label><button class="name" data-edit="${x.b.id}" data-key="${p.key}"><span class="lhs"><b><span class="dot" style="display:inline-block;background:var(${CATS[x.b.cat].v});margin-right:6px;vertical-align:1px"></span>${esc(x.b.name)}</b>${sub}${noteHtml(x.b.note)}</span>${x.b.amount||x.actual!=null?`<span class="amt">${money(x.amt)}</span>`:'<span class="zero">set amount</span>'}</button></div>`;
     }).join('');
   }
@@ -1417,7 +1600,17 @@ function setPaid(id,key,on){
   on?list.add(id):list.delete(id); state.paid[key]=[...list]; prune(); save();
 }
 function isPaid(id,key){return !!key&&(state.paid[key]||[]).includes(id)}
-$('bills').onchange=e=>{const c=e.target.closest('input[data-paid]'); if(c) setPaid(c.dataset.paid,c.dataset.key,c.checked)};
+$('bills').onchange=e=>{const c=e.target.closest('input[data-paid]'); if(!c) return;
+  const id=c.dataset.paid, key=c.dataset.key;
+  if(!c.checked&&state.anchor){ // paid by a bank payment: unmatch it too, or it would just check itself off again
+    const p=period(Math.round((parseD(key)-parseD(state.anchor))/DAY/14)), m=p.key===key?(matchedFor(p)[id]||[]):[];
+    if(m.length){
+      const b=state.bills.find(x=>x.id===id), list=m.map(t=>`${money(t.amount)} on ${fmt(parseD(t.date),{month:'short',day:'numeric'})}`).join(', ');
+      if(!confirm(`Your bank payment (${list}) is matched to ${b?b.name:'this bill'}. Unmatch it so the bill shows as not paid?`)){ render(); return; }
+      m.forEach(unmatchTx);
+    }
+  }
+  setPaid(id,key,c.checked); };
 let billView='pay'; try{ billView=localStorage.getItem('pp-billview')==='all'?'all':'pay'; }catch(e){}
 document.querySelector('.billseg').onclick=e=>{ const b=e.target.closest('[data-bview]'); if(!b) return; billView=b.dataset.bview; try{localStorage.setItem('pp-billview',billView)}catch(e){} render(); };
 // every bill you have, in one place
@@ -1562,7 +1755,7 @@ function prune(){ // keep about 6 months of history
   for(const o of [state.paid,state.spends,state.extras]) for(const k of Object.keys(o)) if(k<cut) delete o[k];
   const cutYear=keyD(addD(today(),-380)); state.bills=state.bills.filter(b=>!(b.ended&&b.ended<cutYear));
   for(const k of Object.keys(state.recapSeen)) if(k<cut) delete state.recapSeen[k];
-  if(bankTx.length){ const ids=new Set(bankTx.map(t=>t.id)); for(const o of [state.seen,state.txSet,state.txCat,state.txNote,state.txSplit]) for(const k of Object.keys(o)) if(!ids.has(k)) delete o[k]; }
+  if(bankTx.length){ const ids=new Set(bankTx.map(t=>t.id)); for(const o of [state.seen,state.txSet,state.txCat,state.txNote,state.txSplit,state.autoTx,state.noAuto]) for(const k of Object.keys(o)) if(!ids.has(k)) delete o[k]; }
 }
 $('xOpen').onclick=()=>{ $('xForm').hidden=false; $('xOpen').hidden=true; $('xName').focus(); };
 $('xAdd').onclick=()=>{
@@ -1691,11 +1884,22 @@ $('spends').onclick=e=>{
   const t=bankTx.find(x=>x.id===b.dataset.tx); if(t) openTx(t);
 };
 let txEditing=null;
+function acctLabel(t){ // e.g. "Chase Total Checking ••1234 · Debit"
+  const a=acctOf(t), inst=t.institution||'';
+  if(!a) return inst||'Your bank';
+  const name=String(a.name||'Account'), full=inst&&!name.toLowerCase().startsWith(inst.toLowerCase())?inst+' '+name:name;
+  const sub=String(a.subtype||'').toLowerCase();
+  const kind=a.type==='credit'?'Credit card':a.type==='loan'?'Loan':a.type==='investment'?'Investment':sub==='checking'?'Debit':sub==='savings'?'Savings':sub?sub.replace(/\b\w/g,c=>c.toUpperCase()):'';
+  return full+(a.mask?' ••'+a.mask:'')+(kind?' · '+kind:'');
+}
 function openTx(t){
   txEditing=t;
   if(!state.seen[t.id]){ state.seen[t.id]=1; save(); }
   $('txTitle').textContent=t.name||'Purchase';
-  $('txSub').textContent=`${t.amount<0?'+'+money(-t.amount)+' coming in':money(t.amount)} · ${fmt(parseD(t.date),{weekday:'short',month:'short',day:'numeric'})} · ${t.institution||'Bank'}${t.pending?' · pending':''}`;
+  $('txSub').textContent=`${t.amount<0?'+'+money(-t.amount)+' coming in':money(t.amount)} · ${fmt(parseD(t.date),{weekday:'short',month:'short',day:'numeric'})}${t.pending?' · pending':''}`;
+  $('txFrom').textContent='From: '+acctLabel(t); $('txFrom').hidden=false;
+  const ab=state.autoTx[t.id]&&useOf(t).startsWith('bill:')?state.bills.find(b=>'bill:'+b.id===useOf(t)):null;
+  $('txAuto').hidden=!ab; $('txAutoText').textContent=ab?`Matched automatically to ${ab.name}.`:'';
   $('txUse').innerHTML=t.amount<0
     ?'<option value="pay">My paycheck (use this amount for this paycheck)</option><option value="extra">Extra money (adds to this paycheck)</option><option value="hide">Not counted (my own transfer or card payment)</option><option value="spend">Refund (lowers my spending)</option>'
     :'<option value="spend">Everyday spending</option><option value="hide">Not spending (hide it)</option>'+state.bills.filter(b=>!b.ended||useOf(t)==='bill:'+b.id).map(b=>`<option value="bill:${esc(b.id)}">Paid bill: ${esc(b.name)}</option>`).join('');
@@ -1737,8 +1941,16 @@ $('txSplitAdd').onclick=()=>{ if(splitRows.length<6){ const l=splitLeft(); split
 $('txSplitBtn').onclick=()=>{ const on=$('txSplit').hidden; if(!on) splitRows=[]; showSplit(on); };
 $('txUse').onchange=()=>showSplit(!$('txSplit').hidden);
 $('txCancel').onclick=()=>$('txDlg').close();
+$('txUnmatch').onclick=()=>{
+  const t=txEditing; if(!t) return;
+  const u=useOf(t), b=u.startsWith('bill:')?state.bills.find(x=>'bill:'+x.id===u):null;
+  unmatchTx(t);
+  if(b){ const k=billPeriodKey(b,t.date); if(k&&!(matchedFor(period(Math.round((parseD(k)-parseD(state.anchor))/DAY/14)))[b.id]||[]).some(x=>x!==t)) setPaid(b.id,k,false); }
+  _mt={}; $('txDlg').close(); save(); status("Unmatched. The app won't guess that one again.");
+};
 $('txSave').onclick=()=>{
   const t=txEditing, v=$('txUse').value, c=$('txCat').value; if(!t) return;
+  const wasAuto=state.autoTx[t.id]?useOf(t):null;
   const k=mkey(t.name), splitting=!$('txSplit').hidden&&v==='spend'&&t.amount>0;
   if(splitting){
     const parts=splitRows.map(r=>({cat:r.cat,amt:Math.round((+r.amt||0)*100)/100})).filter(r=>r.amt>0);
@@ -1749,6 +1961,7 @@ $('txSave').onclick=()=>{
   if($('txRemember').checked){ state.rules[ruleKey(t)]=v; delete state.txSet[t.id]; if(v==='spend'&&t.amount>0&&!splitting){ state.catRules[k]=c; delete state.txCat[t.id]; } }
   else { state.txSet[t.id]=v; if(v==='spend'&&!splitting) state.txCat[t.id]=c; }
   const n=$('txNote').value.trim().slice(0,300); if(n) state.txNote[t.id]=n; else delete state.txNote[t.id];
+  if(wasAuto){ delete state.autoTx[t.id]; if(v!==wasAuto) state.noAuto[t.id]=1; } // it's your choice now; a different one means don't guess again
   $('txDlg').close(); save(); applyBillMatches();
 };
 
@@ -1849,45 +2062,67 @@ function renderBankBar(msg){
   const has=banks.length>0;
   $('bankConnect').hidden=has; $('bankRefresh').hidden=!has; $('bankManage').hidden=!has;
   if(msg){ $('bankInfo').textContent=msg; return; }
-  if(!has){ $('bankInfo').textContent='Connect your bank and purchases show up here on their own.'; return; }
+  if(!has){ $('bankInfo').textContent=bankBusy?'Checking for your bank…':'Connect your bank and purchases show up here on their own.'; return; }
+  if(bankBusy){ $('bankInfo').innerHTML=`<b>${banks.map(b=>esc(b.institution||'Bank')).join(', ')}</b> · updating…`; return; }
   const latest=banks.map(b=>b.last_synced).filter(Boolean).sort().pop();
   const bad=banks.filter(b=>b.status&&b.status!=='ok');
   $('bankInfo').innerHTML=`<b>${banks.map(b=>esc(b.institution||'Bank')).join(', ')}</b> · ${bad.length?'<span style="color:var(--bad)">'+esc((bad[0].institution||'A bank')+' '+bankProblem(bad[0]))+'</span> · tap Manage to fix':'updated '+esc(ago(latest))}`;
 }
-async function loadBankTx(){
-  if(DEMO){ bankTx=demoTx(); return; }
+function setBankTx(rows){ bankTx=rows; carryFromPending(); }
+async function fetchBankTx(){ // saved purchases come straight from your database: quick, and no bank calls needed
+  if(DEMO) return demoTx();
   const from=keyD(addD(today(),-200));
   let r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution,pending_id,account_id').gte('date',from).order('date',{ascending:false}).limit(2000);
   if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution,pending_id').gte('date',from).order('date',{ascending:false}).limit(2000);
   if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution').gte('date',from).order('date',{ascending:false}).limit(2000);
   if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,institution').gte('date',from).order('date',{ascending:false}).limit(2000); // before the detail column exists
   if(r.error) throw r.error;
-  bankTx=(r.data||[]).map(t=>({...t,amount:+t.amount}));
-  carryFromPending();
+  return (r.data||[]).map(t=>({...t,amount:+t.amount}));
 }
 function carryFromPending(){ // a posted purchase gets a new id from the bank; bring over your note, category and choices
   let changed=false;
   for(const t of bankTx){ const pid=t.pending_id; if(!pid) continue;
-    for(const m of [state.txSet,state.txCat,state.txNote,state.seen,state.txSplit]) if(m[pid]!=null&&m[t.id]==null){ m[t.id]=m[pid]; changed=true; } }
+    for(const m of [state.txSet,state.txCat,state.txNote,state.seen,state.txSplit,state.autoTx,state.noAuto]) if(m[pid]!=null&&m[t.id]==null){ m[t.id]=m[pid]; changed=true; } }
   if(changed) save();
 }
-async function loadBalances(){
-  try{ const b=await callPlaid({action:'balances'}); accounts=b.accounts||[]; if(!DEMO) try{localStorage.setItem('pp-accounts',JSON.stringify(accounts))}catch(e){} }
-  catch(e){ /* the server function hasn't been updated with balances yet; skip quietly */ }
+async function refreshOld(){ // the server function from before this update (four trips instead of one)
+  const l=await callPlaid({action:'list'}); let bs=l.banks||[], accts=[];
+  if(bs.length){ await callPlaid({action:'sync'}); bs=(await callPlaid({action:'list'})).banks||[];
+    try{ accts=(await callPlaid({action:'balances'})).accounts||[]; }catch(e){} }
+  return {banks:bs.map(b=>({...b,fresh:true})),accounts:accts,changed:true};
 }
 async function syncBank(force){
-  if(bankBusy) return; if(!force&&Date.now()-lastSync<10*60000) return;
-  bankBusy=true; renderBankBar(banks.length?'Checking your bank…':null);
+  if(bankBusy){ if(force) bankAgain=true; return; } // a new connection while an update is running: update again right after
+  if(!force&&Date.now()-lastSync<5*60000) return;
+  bankBusy=true; bankAgain=false; lastSync=Date.now(); renderBankBar();
   try{
-    const l=await callPlaid({action:'list'}); banks=l.banks||[];
-    if(banks.length){ await callPlaid({action:'sync'}); const l2=await callPlaid({action:'list'}); banks=l2.banks||[]; await loadBalances(); }
-    else { accounts=[]; }
-    await loadBankTx(); lastSync=Date.now();
+    let r;
+    try{ r=await callPlaid({action:'refresh',force:!!force}); }
+    catch(e){ if(!/unknown action/i.test(e.message)) throw e; r=null; }
+    if(!r||!Array.isArray(r.banks)) r=await refreshOld();
+    const list=Array.isArray(r.banks)?r.banks:[];
+    // a bank that didn't answer keeps its last-known balances instead of disappearing
+    const slow=new Set(list.filter(b=>b.fresh===false).map(b=>b.item_id));
+    accounts=list.length?[...(Array.isArray(r.accounts)?r.accounts:[]),...accounts.filter(a=>a.item_id&&slow.has(a.item_id))]:[];
+    banks=list; writeBankCache();
+    if(r.changed||!bankTx.length) setBankTx(await fetchBankTx());
     bankBusy=false; renderBankBar(); render(); applyBillMatches();
-  }catch(e){ bankBusy=false; renderBankBar("Couldn't reach your bank: "+e.message); }
+  }catch(e){ bankBusy=false; lastSync=0; renderBankBar("Couldn't update from your bank ("+e.message+"). Showing what was saved; tap Refresh to try again."); if(!banks.length) $('bankRefresh').hidden=false; }
+  if(bankAgain) syncBank(true);
 }
-let linkHandler=null;
-function openLink(token,receivedRedirectUri,update){
+let linkHandler=null, plaidLoading=null;
+// Plaid's connection tool only loads when you connect or fix a bank, so it isn't running while you use your plan
+function loadPlaid(){
+  if(window.Plaid) return Promise.resolve();
+  if(!plaidLoading) plaidLoading=new Promise((ok,no)=>{
+    const el=document.createElement('script'); el.src='https://cdn.plaid.com/link/v2/stable/link-initialize.js';
+    el.onload=()=>ok(); el.onerror=()=>{ plaidLoading=null; el.remove(); no(new Error("didn't load")); };
+    document.head.appendChild(el);
+  });
+  return plaidLoading;
+}
+async function openLink(token,receivedRedirectUri,update){
+  try{ await loadPlaid(); }catch(e){}
   if(!window.Plaid){ renderBankBar("The bank connection tool didn't load. Check your connection and try again."); return; }
   linkHandler=window.Plaid.create({
     token, ...(receivedRedirectUri?{receivedRedirectUri}:{}),
@@ -1908,7 +2143,7 @@ function openLink(token,receivedRedirectUri,update){
 }
 async function connectBank(){
   if(DEMO){ renderBankBar('Connecting a bank is turned off in the preview.'); return; }
-  renderBankBar('Opening secure bank connection…');
+  renderBankBar('Opening secure bank connection…'); loadPlaid().catch(()=>{});
   try{ const {link_token}=await callPlaid({action:'link'}); try{localStorage.setItem('plaid_link_token',link_token); localStorage.removeItem('plaid_link_mode');}catch(e){} openLink(link_token); }
   catch(e){ renderBankBar("Couldn't start the connection: "+e.message); }
 }
@@ -1925,7 +2160,7 @@ $('bankList').onclick=async e=>{
   const r=e.target.closest('[data-relink],[data-acctsel]');
   if(r){ // fixes or updates the existing connection, so it never uses up another bank connection
     const mode=r.dataset.acctsel?'accounts':'update', item_id=r.dataset.acctsel||r.dataset.relink;
-    $('bankDlg').close(); renderBankBar('Opening secure bank connection…');
+    $('bankDlg').close(); renderBankBar('Opening secure bank connection…'); loadPlaid().catch(()=>{});
     try{ const {link_token}=await callPlaid({action:'relink',item_id,accounts:mode==='accounts'}); try{localStorage.setItem('plaid_link_token',link_token); localStorage.setItem('plaid_link_mode',mode);}catch(e){} openLink(link_token,null,mode); }
     catch(err){ renderBankBar("Couldn't open your bank: "+err.message); }
     return; }
@@ -1974,6 +2209,7 @@ function demoTx(){
 function demoPlaid(body){
   const now=new Date().toISOString();
   if(body.action==='list') return {banks:[{item_id:'i1',institution:'Demo Bank',status:'ok',last_synced:now},{item_id:'i2',institution:'Demo Card',status:'ok',last_synced:now}]};
+  if(body.action==='refresh') return {banks:demoPlaid({action:'list'}).banks.map(b=>({...b,fresh:true})),accounts:demoPlaid({action:'balances'}).accounts,changed:true};
   if(body.action==='balances') return {accounts:[
     {account_id:'acc-chk',name:'Everyday Checking',mask:'1234',type:'depository',subtype:'checking',current:1840.22,available:1790.22,institution:'Demo Bank'},
     {account_id:'acc-sav',name:'High-Yield Savings',mask:'5678',type:'depository',subtype:'savings',current:3150,available:3150,institution:'Demo Bank'},
@@ -2021,9 +2257,10 @@ async function mfaFactors(){
 async function gate(session,thenPw){
   if(!session||!session.user){ if(!startedFor) showAuth(); return; }
   try{
-    const {data}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
-    if(data&&data.nextLevel==='aal2'&&data.currentLevel!=='aal2'){ showMfa(thenPw); return; }
-  }catch(e){}
+    const {data,error}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(error||!data) throw error||new Error('no data');
+    if(data.nextLevel==='aal2'&&data.currentLevel!=='aal2'){ showMfa(thenPw); return; }
+  }catch(e){ showAuth("Couldn't finish signing in. Check your connection and try again.",true); return; }
   startApp(session.user); if(thenPw) setTimeout(()=>openPw(true),50);
 }
 function showMfa(thenPw){
@@ -2046,7 +2283,7 @@ $('mfaForm').onsubmit=async e=>{
   }catch(err){ showAuth(/invalid|expired|code/i.test(String(err&&err.message))?"That code didn't work. Use the newest code in your app (they change every 30 seconds).":(err&&err.message)||"Couldn't check that code. Try again.",true); }
   $('mfaGo').disabled=false;
 };
-$('mfaOut').onclick=async()=>{ try{ await sb.auth.signOut(); }catch(e){} location.reload(); };
+$('mfaOut').onclick=async()=>{ clearDeviceData(); try{ await sb.auth.signOut(); }catch(e){} location.reload(); };
 
 // turning it on and off (Settings)
 let tfaPending=null, tfaFactor=null, demoTfa=false;
@@ -2120,20 +2357,24 @@ $('pwForm').onsubmit=async e=>{
 $('signOut').onclick=async()=>{
   if(DEMO){ status('Signing out is turned off in the preview.'); return; }
   if(!confirm('Sign out on this device?')) return;
-  try{['pp-accounts','pp-acct-open','plaid_link_token','plaid_link_mode'].forEach(k=>localStorage.removeItem(k)); localStorage.removeItem(LS);}catch(e){}
+  clearDeviceData();
   await sb.auth.signOut(); location.reload();
 };
 
 function planDoc(uid){
-  let stamp=null; // when the copy on this device was last saved; a save only goes through if nobody saved since
+  let stamp=null, loaded=false; // when the copy on this device was last saved; a save only goes through if nobody saved since
   return {
     async get(){
       const {data,error}=await sb.from('plans').select('data,updated_at').eq('user_id',uid).maybeSingle();
       if(error) throw error;
-      stamp=data?data.updated_at:null;
+      stamp=data?data.updated_at:null; loaded=true;
       return {exists:!!data, data:()=>data?data.data:undefined};
     },
     async set(d){
+      if(!loaded){ // your saved plan never finished loading here: never write over it blind
+        const snap=await this.get();
+        if(snap.exists){ const e=new Error('changed elsewhere'); e.conflict=true; throw e; }
+      }
       const now=new Date().toISOString();
       if(stamp){
         const {data,error}=await sb.from('plans').update({data:d,updated_at:now}).eq('user_id',uid).eq('updated_at',stamp).select('updated_at');
@@ -2156,16 +2397,26 @@ async function reloadAfterConflict(){
 function showApp(){ $('auth').hidden=true; $('app').hidden=false; $('tabbar').hidden=false; showTab(tab); refreshTfaLabel(); }
 async function startApp(user){
   if(startedFor===user.id) return; startedFor=user.id;
+  // anything this device kept from someone else's sign-in is wiped before it can show
+  let owner=null; try{ owner=localStorage.getItem('pp-owner'); }catch(e){}
+  if(owner&&owner!==user.id) clearDeviceData();
+  try{ localStorage.setItem('pp-owner',user.id); }catch(e){}
+  readBankCache();
   state=readLocal()||blank(); showApp();
+  dbRef=planDoc(user.id);
+  const txLoad=fetchBankTx().catch(()=>null); // starts now, alongside your plan
   try{
-    dbRef=planDoc(user.id);
     const snap=await dbRef.get();
-    if(snap.exists){state=normalize(snap.data()); writeLocal(); render();}
+    if(snap.exists){state=normalize(snap.data()); writeLocal();}
     else if(state.bills.length) save();
+  }catch(e){status("Couldn't load your saved plan. Changes are kept on this device for now.")}
+  const rows=await txLoad; if(rows) setBankTx(rows);
+  render(); if(rows) applyBillMatches();
+  try{
     // finishing a bank login that sent you away and back (some banks do this)
     let stored=null, mode=null; try{stored=localStorage.getItem('plaid_link_token'); mode=localStorage.getItem('plaid_link_mode');}catch(e){}
     if(/[?&]oauth_state_id=/.test(location.search)&&stored){ openLink(stored,location.href,mode==='update'||mode==='accounts'?mode:false); history.replaceState(null,'',location.pathname); }
-    else syncBank(true);
+    else syncBank(false); // banks update in the background; one updated in the last few minutes is skipped
     // pick up changes made on your other device when you come back to this one
     document.addEventListener('visibilitychange',async()=>{
       if(document.hidden){ // send any unsaved change right away
@@ -2177,7 +2428,7 @@ async function startApp(user){
       try{await writing; const s=await dbRef.get(); if(s.exists){state=normalize(s.data()); writeLocal(); render();}}catch(e){}
       syncBank(false);
     });
-  }catch(e){status("Couldn't load your saved plan. Changes are kept on this device for now.")}
+  }catch(e){}
 }
 
 if(DEMO){
