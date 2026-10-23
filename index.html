@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Dwd9R98aLUrNyz/qtfnl71cQPHH9gOwM0JoljreCqdo=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-1dITnQRS1QrCj2qe46SQPZdrD7xg/yg7Q26jqRlHD0k=' https://cdn.jsdelivr.net https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -29,6 +29,8 @@
   --c-savings:#0E7471; --c-investing:#4FA39E; --c-pets:#8B5E34; --c-health:#9C6B9E;
   --c-subs:#8C8F93; --c-other:#C9B79C; --c-spent:#2B3035;
   --s1:#34497A; --s2:#5B6FB0; --s3:#8A7CC0; --s4:#3F84B0; --s5:#6A5A9C; --s6:#7F95AD; --s7:#9DB3D9; --s8:#2F6F8F; --s9:#B3A6DD; --s10:#566C88; --s-other:#A1A9B8;
+  --f1:#0E7471; --f2:#4FA39E; --f3:#2F6F8F; --f4:#7A8B4E; --f5:#A86A08; --f6:#8DB7B2; --f-cash:#C9B79C; --f-none:#C7CBCF;
+  --b1:#B5487A; --b2:#7D5BA6; --b3:#C2703D; --b4:#3E8E6B; --b5:#A0895A; --b6:#4F6D8F;
   --font:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -41,6 +43,8 @@
   --c-savings:#4CC3BC; --c-investing:#8FD9D3; --c-pets:#9DB8A0; --c-health:#C49AC6;
   --c-subs:#A9B6BE; --c-other:#D8C9AE; --c-spent:#E3E7EA; color-scheme:dark;
   --s1:#8FA4E0; --s2:#A8B5EE; --s3:#B9AAE8; --s4:#7FB6DC; --s5:#A796D6; --s6:#A9BCD0; --s7:#C4D3F0; --s8:#6FAFCF; --s9:#D2C8F2; --s10:#8EA3BD; --s-other:#7D8794;
+  --f1:#4CC3BC; --f2:#8FD9D3; --f3:#6FAFCF; --f4:#B5C46E; --f5:#D98E5C; --f6:#3F8F8A; --f-cash:#D8C9AE; --f-none:#55626A;
+  --b1:#E58AB4; --b2:#B79BE0; --b3:#EBA478; --b4:#7BCFA6; --b5:#D3C08E; --b6:#93AFCF;
   }
 }
 :root[data-theme="dark"]{
@@ -50,6 +54,8 @@
   --c-savings:#4CC3BC; --c-investing:#8FD9D3; --c-pets:#9DB8A0; --c-health:#C49AC6;
   --c-subs:#A9B6BE; --c-other:#D8C9AE; --c-spent:#E3E7EA; color-scheme:dark;
   --s1:#8FA4E0; --s2:#A8B5EE; --s3:#B9AAE8; --s4:#7FB6DC; --s5:#A796D6; --s6:#A9BCD0; --s7:#C4D3F0; --s8:#6FAFCF; --s9:#D2C8F2; --s10:#8EA3BD; --s-other:#7D8794;
+  --f1:#4CC3BC; --f2:#8FD9D3; --f3:#6FAFCF; --f4:#B5C46E; --f5:#D98E5C; --f6:#3F8F8A; --f-cash:#D8C9AE; --f-none:#55626A;
+  --b1:#E58AB4; --b2:#B79BE0; --b3:#EBA478; --b4:#7BCFA6; --b5:#D3C08E; --b6:#93AFCF;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px);font-size:17px}
 *,*::before,*::after{box-sizing:border-box}
@@ -69,8 +75,25 @@ button{cursor:pointer}
 .hero svg{width:100%;height:100%;transform:rotate(-90deg)}
 .legend .pct{color:var(--muted);font-weight:600}
 .hero circle{transition:stroke-dasharray .5s ease, stroke-dashoffset .5s ease, stroke-width .2s ease, opacity .2s ease}
-#donut [data-sl]{cursor:pointer}
-#donut .dim{opacity:.28}
+#donut [data-sl],.hero [data-bsl]{cursor:pointer}
+#donut .dim,.hero svg .dim{opacity:.28}
+.hero.sm{width:min(220px,60vw);margin:6px auto 2px}
+.hero.sm .big{font-size:clamp(1.6rem,7vw,2rem)}
+.hero.sm .lbl{font-size:.82rem;margin-top:4px}
+.hero.sm .wk{font-size:.82rem;font-weight:600;color:var(--muted)}
+.bfilter{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin:4px 0 2px;font-size:.85rem}
+.bfilter button{background:none;border:0;color:var(--accent);font-weight:700;padding:4px 0}
+.bmath{margin:6px 0 2px}
+.bmath .pmath{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;font-size:.92rem}
+.bmath .pmath.tot{font-weight:800;border-top:1.5px solid var(--ink)}
+.blinks{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:6px}
+.yrow{display:flex;justify-content:space-between;gap:10px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 2px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.yrow:last-child{border-bottom:0}
+.yrow b{font-weight:600;display:flex;align-items:center;gap:6px}
+.yrow small{display:block;color:var(--muted);font-size:.78rem}
+.yrow .amt{text-align:right}
+.yrow .amt small{font-weight:500}
+#fSpreadWrap small{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}
 .center{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 22%}
 .big{font-size:clamp(2.1rem,9.5vw,2.8rem);font-weight:800;letter-spacing:-.02em;line-height:1}
 .big.neg{color:var(--bad)}
@@ -413,6 +436,57 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
 #catRestore{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.82rem;color:var(--muted);margin-top:6px}
 #catRestore button{background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:.82rem;font-weight:600;color:var(--ink)}
 .linkbtn{text-align:left;background:none;border:0;color:var(--accent);font-weight:700;padding:8px 0 2px;font-size:.9rem}
+/* investments */
+.abar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--left);gap:2px;margin:10px 0 8px}
+.abar i{display:block;height:100%;min-width:3px}
+.abar.mini{height:6px;margin:6px 0 2px;gap:1px}
+.alegend{display:flex;flex-wrap:wrap;gap:4px 14px;list-style:none;margin:0;padding:0;font-size:.82rem;color:var(--muted)}
+.alegend li{display:flex;align-items:center;gap:6px}
+.alegend b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.invsum{display:block;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 2px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.invsum .top2{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.invsum .top2 .gname::after{content:" ›";color:var(--accent)}
+.invsum .top2 .gtot{font-variant-numeric:tabular-nums}
+.invsum small{display:block;color:var(--muted);font-size:.78rem}
+.backlink{background:none;border:0;color:var(--accent);font-weight:700;padding:2px 0 10px;font-size:.92rem}
+.ilbl{margin:0;color:var(--muted);font-size:.85rem;font-weight:600}
+.ibig{font-size:2.1rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.chip{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:1px;white-space:nowrap}
+.chip.warn{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.chip.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.frow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.frow:last-child{border-bottom:0}
+.frow .fname{flex:1;min-width:0}
+.frow .fname b{font-weight:700}
+.frow small{display:block;color:var(--muted);font-size:.78rem}
+.frow .fval{text-align:right;font-variant-numeric:tabular-nums}
+.frow .fval b{font-weight:700}
+.frow small.up{color:var(--good)} .frow small.down{color:var(--bad)}
+.frow.thead{padding:0 2px 6px;font-size:.74rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.frow.thead .fval{font-size:.74rem}
+.fdot{width:10px;height:10px;border-radius:3px;flex:none}
+.iacct{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 2px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.iacct:last-child{border-bottom:0}
+.iacct small{display:block;color:var(--muted);font-size:.78rem}
+.iacct .amt{text-align:right}
+.iacct .amt small{font-weight:600}
+.igh{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 2px 2px}
+.igh:first-child{padding-top:0}
+.igh span:first-child{display:flex;align-items:center;gap:6px}
+.ichart{display:block;width:100%;height:auto;margin:8px 0 2px;overflow:visible}
+.ichart text{font:600 10px var(--font);fill:var(--muted)}
+.bar2{position:relative;height:12px;background:var(--left);border-radius:99px;overflow:hidden;margin:10px 0 6px}
+.bar2 i,.bar2 s{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.bar2 i{background:var(--c-savings);z-index:1}
+.bar2 s{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--c-savings) 45%,transparent) 0 4px,transparent 4px 8px)}
+.bar2.over i{background:var(--bad)}
+.mrow{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+.mrow strong{font-variant-numeric:tabular-nums}
+.actlist .frow b{font-weight:600}
+#invDlgBody .ibig{font-size:1.7rem}
+#tfaList .frow{padding:8px 2px}
+h3.igh{margin:0}
+#tfaList button{background:none;border:0;color:var(--bad);font-weight:700;padding:6px 0;font-size:.85rem}
 .tline .row .when{font-size:.78rem;font-weight:700}
 .tline .row .when.soon{color:var(--bad)}
 .tline .row .when.ok{color:var(--muted)}
@@ -473,6 +547,8 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
       <button data-go="spending"><span>Spent so far</span><strong id="sSpent">$0</strong></button>
     </div>
     <div class="callout" id="planReview" hidden><span id="planReviewText"></span><button data-go="spending">Review</button></div>
+    <div class="callout" id="expiryBox" hidden><span id="expiryText"></span><button id="expiryGo">Renew</button></div>
+    <div class="callout" id="backupBox" hidden><span>It's been a while since you saved a backup of your plan.</span><span style="display:flex;gap:14px"><button id="backupLater" style="color:var(--muted)">Later</button><button id="backupNow">Back up</button></span></div>
     <div class="cardbox" id="cardBox" hidden></div>
     <div class="recap" id="recapBox" hidden></div>
     <section id="acctSec" hidden>
@@ -523,8 +599,9 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
 
   <!-- BILLS -->
   <div class="panel" id="tab-bills" hidden>
-    <div class="billseg" role="tablist" aria-label="Which bills"><button role="tab" data-bview="pay" aria-selected="true">This paycheck</button><button role="tab" data-bview="all" aria-selected="false">All bills</button></div>
+    <div class="billseg" role="tablist" aria-label="Which bills"><button role="tab" data-bview="pay" aria-selected="true">This check</button><button role="tab" data-bview="all" aria-selected="false">All bills</button><button role="tab" data-bview="year" aria-selected="false">Yearly</button></div>
     <section id="allBills" hidden></section>
+    <section id="yearBills" hidden></section>
     <section class="tline" id="payBills">
       <h2>Bills from this paycheck</h2>
       <p class="billsum" id="billSum"></p>
@@ -533,6 +610,48 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
       <div class="askbox" id="billAsk" hidden><h3>Is this a bill payment?</h3><p class="sub">These charges look like one of your bills, but the app isn't sure which. Pick the bill, or tell the app it isn't one.</p><div id="billAskList"></div></div>
       <div id="bills"></div>
       <div class="actions"><button class="btn" id="addBill">Add a bill</button></div>
+    </section>
+  </div>
+
+  <!-- INVESTMENTS (opened from the Plan tab) -->
+  <div class="panel" id="tab-invest" hidden>
+    <button class="backlink" data-go="plan">‹ Back to Plan</button>
+    <section>
+      <p class="ilbl">All investments</p>
+      <div class="ibig" id="invTotal">$0</div>
+      <p class="note" id="invSub" style="margin-top:0"></p>
+      <div class="abar" id="invBarWhere" role="img"></div>
+      <ul class="alegend" id="invLegWhere"></ul>
+    </section>
+    <section id="invChartSec" hidden>
+      <div class="h2row"><h2>Value over time</h2><span class="note" id="invChg" style="margin:0"></span></div>
+      <div id="invChart"></div>
+      <p class="note">Includes money you added, not just growth. Starts from when the app began saving your balances.</p>
+    </section>
+    <section id="invFundSec" hidden>
+      <h2>By fund</h2>
+      <div class="abar" id="invBarFund" role="img"></div>
+      <div id="invFunds"></div>
+      <p class="note" id="invFundNote"></p>
+    </section>
+    <section>
+      <h2>Accounts</h2>
+      <div id="invAccts"></div>
+      <button class="linkbtn" id="invAdd">+ Add an account yourself</button>
+    </section>
+    <section id="rothSec" hidden>
+      <div class="h2row"><h2 id="rothTitle">Roth IRA</h2><button class="linkbtn" id="rothEdit" style="padding:0">Edit</button></div>
+      <div class="mrow"><span id="rothText"></span><strong id="rothPct"></strong></div>
+      <div class="bar2" id="rothBar"><s id="rothProj"></s><i id="rothDone"></i></div>
+      <p class="note" id="rothNote"></p>
+    </section>
+    <section id="monthSec" hidden>
+      <h2>Saved &amp; invested by month</h2>
+      <div class="mrow" style="margin-top:6px"><span id="monthText"></span><strong id="monthPct"></strong></div>
+      <div class="bar2"><i id="monthBar"></i></div>
+      <div id="monthChart"></div>
+      <ul class="alegend" id="monthLeg"></ul>
+      <p class="note" id="monthNote"></p>
     </section>
   </div>
 
@@ -621,6 +740,16 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
   </div>
 </dialog>
 
+<dialog id="bcatDlg">
+  <h2>Bill categories</h2>
+  <p class="sub">Add your own, like Holidays or Gifts. The built-in ones stay as they are.</p>
+  <div id="bcatList"></div>
+  <label for="bcatNew">Add a category</label>
+  <div class="addsp addx catadd"><input id="bcatNew" maxlength="30" placeholder="e.g. Holidays &amp; gifts"><button class="btn" id="bcatAdd">Add</button></div>
+  <p class="note" id="bcatMsg" role="status"></p>
+  <div class="actions"><button class="btn" id="bcatDone">Done</button></div>
+</dialog>
+
 <dialog id="catDlg">
   <h2>Spending categories</h2>
   <p class="sub" id="catSub">Rename one by typing over it.</p>
@@ -673,7 +802,9 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
   </div>
   <div id="tfaOn" hidden>
     <p class="sub">Two-step login is on. When you sign in fresh, the app asks for the 6-digit code from your authenticator app. This phone stays signed in like before.</p>
-    <p class="note">Lost your authenticator app? Sign in to supabase.com and follow the "If you're ever locked out" note you saved with this update.</p>
+    <div id="tfaList"></div>
+    <button class="linkbtn" id="tfaAddBackup" type="button">+ Add a backup authenticator</button>
+    <p class="note" id="tfaBackupNote">A backup (on another device, or in a password manager) means losing your phone never locks you out. A code from any of them works.</p>
   </div>
   <p class="note" id="tfaMsg" role="status"></p>
   <div class="actions">
@@ -702,13 +833,31 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
   <div class="actions"><button class="btn" id="recapClose">Close</button></div>
 </dialog>
 
+<dialog id="invDlg">
+  <h2 id="invDlgTitle">Account</h2>
+  <p class="sub" id="invDlgSub"></p>
+  <div id="invDlgBody"></div>
+  <div class="actions"><button class="btn" id="invDlgEdit" hidden>Update balance</button><button class="btn ghost" id="invDlgClose">Close</button></div>
+</dialog>
+
+<dialog id="rothDlg">
+  <h2>Roth IRA contributions</h2>
+  <p class="sub">The app counts contributions it can see. Add anything you put in earlier this year that it can't see.</p>
+  <label for="rothEarlyIn">Earlier contributions this year</label><input id="rothEarlyIn" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$0">
+  <label for="rothLimitIn">Yearly limit</label><input id="rothLimitIn" type="number" inputmode="decimal" min="0" step="1">
+  <p class="note" id="rothLimitNote"></p>
+  <div class="actions"><button class="btn" id="rothSave">Save</button><button class="btn ghost" id="rothCancel">Cancel</button></div>
+</dialog>
+
 <dialog id="macDlg">
   <h2 id="macTitle">Add an account</h2>
   <p class="sub">For an account your bank can't connect. You update the balance yourself.</p>
   <label for="macName">Name</label><input id="macName" maxlength="60" placeholder="e.g. Second savings">
   <label for="macType">Type</label>
-  <select id="macType"><option value="savings">Savings</option><option value="checking">Checking</option><option value="credit">Credit card (amount owed)</option><option value="investment">Investment</option></select>
+  <select id="macType"><option value="savings">Savings</option><option value="checking">Checking</option><option value="credit">Credit card (amount owed)</option><option value="retirement">Retirement (IRA, 401(k))</option><option value="investment">Investing (taxable brokerage)</option><option value="brokercash">Cash at a brokerage</option></select>
   <label for="macBal">Balance right now</label><input id="macBal" type="number" inputmode="decimal" step="0.01">
+  <div id="macApyWrap"><label for="macApy">Interest rate (APY %, optional)</label><input id="macApy" type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="e.g. 4.1"></div>
+  <div id="macEndsWrap" hidden><label for="macEnds">Bonus or promo rate ends (optional)</label><input id="macEnds" type="date"></div>
   <p class="note" id="macWhen"></p>
   <div class="actions">
     <button class="btn" id="macSave">Save</button>
@@ -745,7 +894,9 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
   <div id="dueWrap"><label for="fDue" id="fDueLabel">Due day of the month</label><input id="fDue" type="number" inputmode="numeric" min="1" max="31" placeholder="e.g. 1"></div>
   <div id="due2Wrap" hidden><label for="fDue2">Second due day</label><input id="fDue2" type="number" inputmode="numeric" min="1" max="31" placeholder="e.g. 15"></div>
   <div id="nextWrap" hidden><label for="fNext" id="fNextLabel">Next due date</label><input id="fNext" type="date"></div>
+  <label class="rem" id="fSpreadWrap" hidden><input type="checkbox" id="fSpread"> <span>Set aside a bit from each paycheck<small id="fSpreadNote">So it doesn't all come out of one paycheck.</small></span></label>
   <label for="fCat">Category</label><select id="fCat"></select>
+  <button class="linkbtn" id="fCatEdit" type="button" style="padding-top:6px;font-size:.84rem">Add or edit bill categories</button>
   <label for="fNote">Note</label><textarea id="fNote" rows="2" maxlength="300" placeholder="e.g. Autopay from Chase on the 1st"></textarea>
   <p class="note" id="fWhen"></p>
   <div class="actions">
@@ -771,6 +922,10 @@ document.getElementById('themeSeg').onclick=e=>{const b=e.target.closest('[data-
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>applyTheme(themePref));
 const DEMO=/[?&]demo\b/.test(location.search)||!/(^|\.)github\.io$/.test(location.hostname);
 
+// a bill category, built-in or one you added
+const BC_COLORS=['--b1','--b2','--b3','--b4','--b5','--b6'];
+function bcat(k){ if(CATS[k]) return CATS[k]; const i=state&&state.billCats?state.billCats.findIndex(c=>c.id===k):-1; return i>=0?{label:state.billCats[i].label,v:BC_COLORS[i%6]}:CATS.other; }
+const billCatKeys=()=>[...Object.keys(CATS).filter(k=>k!=='other'),...(state?state.billCats.map(c=>c.id):[]),'other'];
 const CATS={
   housing:{label:'Housing',v:'--c-housing'}, car:{label:'Car',v:'--c-car'},
   insurance:{label:'Insurance',v:'--c-insurance'}, utilities:{label:'Utilities',v:'--c-utilities'},
@@ -816,17 +971,18 @@ const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12);
 const fmt=(d,o)=>d.toLocaleDateString('en-US',o||{month:'short',day:'numeric'});
 const today=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12)};
 const isObj=o=>o&&typeof o==='object'&&!Array.isArray(o);
-const keyOk=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):'';
+const keyOk=v=>/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(String(v||''))?String(v):''; // a real calendar day, YYYY-MM-DD
 const FREQS=['monthly','twice','paycheck','weekly','weeks','months','annual','once'];
-const BILL_KEYS=['name','note','amount','cat','freq','due','due2','n','next'];
+const BILL_KEYS=['name','note','amount','cat','freq','due','due2','n','next','spread'];
 const pickBill=o=>Object.fromEntries(BILL_KEYS.map(f=>[f,o[f]]));
 const noteHtml=n=>n?`<small class="note-line">${esc(n)}</small>`:'';
+const MAN_TYPES=['savings','checking','credit','investment','retirement','brokercash'];
 const safeId=v=>/^[A-Za-z0-9_-]{1,40}$/.test(String(v||''))?String(v):uid();
 
 let state=null, dbRef=null, saveTimer=null, writing=Promise.resolve(), editing=null, offset=0;
 let tab='plan'; try{ tab=localStorage.getItem('pp-tab')||'plan'; }catch(e){}
 
-function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{},autoTx:{},noAuto:{}}}
+function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{},autoTx:{},noAuto:{},invSnap:{},rothEarly:{},rothLimit:{},lastBackup:'',backupLater:'',billCats:[]}}
 const BAD_KEYS=new Set(['__proto__','constructor','prototype']);
 const num=v=>{ v=+v; return isFinite(v)?v:0; };
 // copies an {id: value} map, keeping only safe keys and values that pass the check
@@ -837,14 +993,17 @@ function normalize(d){
   // saved data comes back read-only, so work on a fresh copy
   const raw=JSON.parse(JSON.stringify(d||{})); if(isObj(raw)) for(const k of BAD_KEYS) delete raw[k];
   const s=Object.assign(blank(),isObj(raw)?raw:{});
+  // bill categories you added (the built-in ones never change)
+  { const seen=new Set(); s.billCats=(Array.isArray(s.billCats)?s.billCats:[]).filter(isObj).map(c=>({id:String(c.id||''),label:String(c.label||'').trim().slice(0,30)})).filter(c=>/^bc[a-z0-9]{2,12}$/.test(c.id)&&c.label&&!seen.has(c.id)&&seen.add(c.id)).slice(0,12); }
+  const billCatOk=new Set([...Object.keys(CATS),...s.billCats.map(c=>c.id)]);
   const billPart=b=>{ let freq=b.freq, n=parseInt(b.n)||0;
     if(freq==='every2'){freq='months';n=2;} if(freq==='every3'){freq='months';n=3;} // older versions
     freq=FREQS.includes(freq)?freq:'monthly';
     n=freq==='weeks'?Math.min(52,Math.max(1,n||3)):freq==='months'?Math.min(24,Math.max(1,n||2)):0;
     const day=v=>Math.min(31,Math.max(0,parseInt(v)||0));
-    return {name:String(b.name||'Bill').slice(0,80),note:String(b.note||'').slice(0,300),amount:num(b.amount),cat:CATS[b.cat]?b.cat:'other',freq,n,due:day(b.due),due2:freq==='twice'?day(b.due2):0,next:keyOk(b.next)}; };
+    return {name:String(b.name||'Bill').slice(0,80),note:String(b.note||'').slice(0,300),amount:num(b.amount),cat:billCatOk.has(b.cat)?b.cat:'other',freq,n,due:day(b.due),due2:freq==='twice'?day(b.due2):0,next:keyOk(b.next),spread:!!b.spread&&(freq==='annual'||freq==='months'||freq==='once')}; };
   s.bills=(Array.isArray(s.bills)?s.bills:[]).filter(isObj).slice(0,200).map(b=>{ const from=keyOk(b.from);
-    return {id:safeId(b.id),...billPart(b),from,ended:keyOk(b.ended),past:(Array.isArray(b.past)?b.past:[]).filter(isObj).map(v=>({from:keyOk(v.from),...billPart(v)})).filter(v=>v.from<from).sort((a,c)=>a.from<c.from?-1:1).slice(-24)}; });
+    return {id:safeId(b.id),...billPart(b),from,ended:keyOk(b.ended),spreadFrom:keyOk(b.spreadFrom),past:(Array.isArray(b.past)?b.past:[]).filter(isObj).map(v=>({from:keyOk(v.from),...billPart(v)})).filter(v=>v.from<from).sort((a,c)=>a.from<c.from?-1:1).slice(-24)}; });
   s.paid=cleanMap(s.paid,v=>Array.isArray(v)?v.filter(x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,40}$/.test(x)).slice(0,200):undefined,k=>!!keyOk(k));
   s.spendCats=cleanCats(s.spendCats); const catIds=new Set(s.spendCats.map(c=>c.id));
   s.spends=cleanMap(s.spends,v=>v,k=>!!keyOk(k));
@@ -858,7 +1017,13 @@ function normalize(d){
       if(arr.length) L[k]=arr; } s.limits=L; }
   s.extras=cleanMap(s.extras,v=>v,k=>!!keyOk(k));
   for(const k of Object.keys(s.extras)) s.extras[k]=(Array.isArray(s.extras[k])?s.extras[k]:[]).filter(isObj).slice(0,200).map(x=>({id:safeId(x.id),note:String(x.note||'').slice(0,300),name:String(x.name||'Extra money').slice(0,80),amount:Math.abs(num(x.amount))}));
-  s.manual=(Array.isArray(s.manual)?s.manual:[]).filter(isObj).slice(0,20).map(m=>({id:safeId(m.id),name:String(m.name||'Account').slice(0,60),type:['savings','checking','credit','investment'].includes(m.type)?m.type:'savings',balance:num(m.balance),updated:String(m.updated||'').slice(0,30)}));
+  s.manual=(Array.isArray(s.manual)?s.manual:[]).filter(isObj).slice(0,20).map(m=>({id:safeId(m.id),name:String(m.name||'Account').slice(0,60),type:MAN_TYPES.includes(m.type)?m.type:'savings',balance:num(m.balance),updated:String(m.updated||'').slice(0,30),apy:Math.max(0,Math.min(100,num(m.apy))),ends:keyOk(m.ends)}));
+  // investment balances by day (for the value-over-time chart), about 13 months
+  s.invSnap=cleanMap(s.invSnap,v=>isObj(v)?cleanMap(v,x=>{ x=+x; return isFinite(x)&&Math.abs(x)<1e9?Math.round(x*100)/100:undefined; }):undefined,k=>!!keyOk(k));
+  { const ks=Object.keys(s.invSnap).sort(); for(const k of ks.slice(0,Math.max(0,ks.length-400))) delete s.invSnap[k]; for(const k of ks) if(Object.keys(s.invSnap[k]||{}).length>30) delete s.invSnap[k]; }
+  s.rothEarly=cleanMap(s.rothEarly,v=>{ v=num(v); return v>0?Math.min(v,1e6):undefined; },k=>/^\d{4}$/.test(k));
+  s.rothLimit=cleanMap(s.rothLimit,v=>{ v=num(v); return v>0?Math.min(v,1e5):undefined; },k=>/^\d{4}$/.test(k));
+  s.lastBackup=keyOk(s.lastBackup); s.backupLater=keyOk(s.backupLater);
   s.goals=(Array.isArray(s.goals)?s.goals:[]).filter(isObj).slice(0,50).map(g=>({id:safeId(g.id),note:String(g.note||'').slice(0,300),name:String(g.name||'Goal').slice(0,80),target:num(g.target),saved:num(g.saved),account:String(g.account||'').slice(0,120),monthly:num(g.monthly)}));
   s.bankFrom=/^\d{4}-\d{2}-\d{2}$/.test(s.bankFrom)?s.bankFrom:'';
   s.paycheck=Math.max(0,num(s.paycheck)); s.goal=Math.max(0,num(s.goal)); s.anchor=/^\d{4}-\d{2}-\d{2}$/.test(s.anchor)?s.anchor:'';
@@ -942,6 +1107,19 @@ function changeBill(b,v,k){ // a change counts from paycheck `k` on; earlier pay
   if(!(prev&&BILL_KEYS.every(f=>String(prev[f])===String(v[f])))) vers.push({from:k,...pickBill(v)});
   const cur=vers.pop(); Object.assign(b,pickBill(cur)); b.from=cur.from||''; b.past=vers;
 }
+// "set aside a bit each paycheck": once-a-year (or every few months) costs are split across the paychecks before they're due
+function nextDueOf(b,from){ let d=parseD(b.next), m=monthsOf(b); if(!m) return d; let k=0; while(d<from&&k++<400) d=new Date(d.getFullYear(),d.getMonth()+m,Math.min(d.getDate(),28),12); return d; }
+function spreadShare(b0,b,p){
+  const due=nextDueOf(b,p.start), dd=fmt(due,{month:'short',day:'numeric'});
+  if(b.freq==='once'){
+    if(due<p.start) return null;
+    const i0=idxOf(period(Math.floor(Math.round((parseD(b0.spreadFrom||b0.from||keyD(p.start))-parseD(state.anchor))/DAY)/14))), i=idxOf(p), iDue=Math.floor(Math.round((due-parseD(state.anchor))/DAY)/14);
+    if(i<i0||i>iDue) return null; const n=Math.max(1,iDue-i0+1);
+    return {b,amt:b.amount/n,note:`Setting aside for ${dd} · ${money(b.amount)} over ${n} paycheck${n===1?'':'s'}`,multi:true,spread:true};
+  }
+  const per=b.amount/(monthsOf(b)*26/12);
+  return {b,amt:per,note:`Setting aside for ${dd} · ${money(b.amount)} ${everyText(b)}`,multi:true,spread:true};
+}
 function billsFor(p){
   const out=[], act=actualPaid(p), live=p.end>today();
   state.bills.forEach(b0=>{
@@ -949,6 +1127,7 @@ function billsFor(p){
     let x=null;
     if(b.freq==='paycheck') x={b,amt:b.amount,note:'Every paycheck',multi:true};
     else if(b.freq==='weekly') x={b,amt:b.amount*2,note:`${money(b.amount)} a week × 2`,multi:true};
+    else if(b.spread&&b.next&&(b.freq==='once'||monthsOf(b))){ const sx=spreadShare(b0,b,p); if(sx) x=sx; }
     else if(needsNext(b)&&!b.next){ if(b.freq!=='once') x={b,amt:b.freq==='weeks'?b.amount*2/b.n:b.amount/(2*monthsOf(b)),note:'Spread out, until you add the next due date',warn:true,multi:true}; }
     else if(!needsNext(b)&&!b.due) x={b,amt:b.amount/2,note:'Half of it, until you add a due date',warn:true,multi:true};
     else { const ds=dueDates(b,p);
@@ -991,16 +1170,18 @@ function billPaidState(id,p){
 // ---- bank transactions ----
 let bankTx=[], banks=[], accounts=[], showSkipped=false, bankBusy=false, bankAgain=false, lastSync=0;
 // last-known balances and bank names, so they show the moment the app opens (fresh ones follow a moment later)
-const DEVICE_KEYS=[LS,'pp-accounts','pp-banks','pp-acct-open','plaid_link_token','plaid_link_mode','pp-owner'];
+const DEVICE_KEYS=[LS,'pp-accounts','pp-banks','pp-holdings','pp-invtx','pp-acct-open','plaid_link_token','plaid_link_mode','pp-owner'];
 function clearDeviceData(){ try{ DEVICE_KEYS.forEach(k=>localStorage.removeItem(k)); }catch(e){} }
 function readBankCache(){
   if(DEMO) return;
   try{ const a=JSON.parse(localStorage.getItem('pp-accounts')||'null'); if(Array.isArray(a)) accounts=a.filter(isObj).slice(0,60); }catch(e){}
-  try{ const b=JSON.parse(localStorage.getItem('pp-banks')||'null'); if(Array.isArray(b)) banks=b.filter(isObj).slice(0,20).map(x=>({item_id:String(x.item_id||'').slice(0,200),institution:String(x.institution||'').slice(0,80),last_synced:String(x.last_synced||'').slice(0,40),status:String(x.status||'').slice(0,200)})); }catch(e){}
+  try{ const b=JSON.parse(localStorage.getItem('pp-banks')||'null'); if(Array.isArray(b)) banks=b.filter(isObj).slice(0,20).map(x=>({item_id:String(x.item_id||'').slice(0,200),institution:String(x.institution||'').slice(0,80),last_synced:String(x.last_synced||'').slice(0,40),status:String(x.status||'').slice(0,200),consent_expires:String(x.consent_expires||'').slice(0,40)})); }catch(e){}
+  try{ holdings=cleanHoldings(JSON.parse(localStorage.getItem('pp-holdings')||'null')); }catch(e){}
+  try{ invTx=cleanInvTx(JSON.parse(localStorage.getItem('pp-invtx')||'null')); }catch(e){}
 }
 function writeBankCache(){
   if(DEMO) return;
-  try{ localStorage.setItem('pp-accounts',JSON.stringify(accounts)); localStorage.setItem('pp-banks',JSON.stringify(banks.map(b=>({item_id:b.item_id,institution:b.institution,last_synced:b.last_synced,status:b.status})))); }catch(e){}
+  try{ localStorage.setItem('pp-accounts',JSON.stringify(accounts)); localStorage.setItem('pp-banks',JSON.stringify(banks.map(b=>({item_id:b.item_id,institution:b.institution,last_synced:b.last_synced,status:b.status,consent_expires:b.consent_expires||''})))); localStorage.setItem('pp-holdings',JSON.stringify(holdings)); localStorage.setItem('pp-invtx',JSON.stringify(invTx)); }catch(e){}
 }
 const SKIP_CATS=new Set(['INCOME','TRANSFER_IN','TRANSFER_OUT','LOAN_PAYMENTS','RENT_AND_UTILITIES']);
 // store names: letters only, first 6 words (older versions used 3 words; those rules still work for purchases)
@@ -1253,12 +1434,12 @@ document.addEventListener('click',e=>{ // tapping anywhere else closes the detai
 });
 
 // ---- tabs ----
-const TAB_TITLES={plan:'Paycheck plan',spending:'Spending',bills:'Bills',goals:'Goals'};
+const TAB_TITLES={plan:'Paycheck plan',spending:'Spending',bills:'Bills',goals:'Goals',invest:'Investments'};
 function showTab(t){
   if(!TAB_TITLES[t]) t='plan';
   tab=t; try{localStorage.setItem('pp-tab',t)}catch(e){}
   for(const k of Object.keys(TAB_TITLES)) $('tab-'+k).hidden=k!==t;
-  document.querySelectorAll('#tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
+  document.querySelectorAll('#tabbar [data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===(t==='invest'?'plan':t))));
   $('tabTitle').textContent=TAB_TITLES[t];
   $('payWrap').hidden=t!=='plan';
   render(); window.scrollTo(0,0);
@@ -1274,8 +1455,8 @@ function render(){
   $('setup').hidden=ready;
   if(document.activeElement!==$('pay')) $('pay').value=state.paycheck||'';
   if(document.activeElement!==$('goal')) $('goal').value=state.goal||'';
-  $('nav').style.display=(!ready||tab==='goals'||(tab==='bills'&&billView==='all'))?'none':'';
-  $('allBills').hidden=billView!=='all'; $('payBills').hidden=billView==='all';
+  $('nav').style.display=(!ready||tab==='goals'||tab==='invest'||(tab==='bills'&&billView!=='pay'))?'none':'';
+  $('allBills').hidden=billView!=='all'; $('yearBills').hidden=billView!=='year'; $('payBills').hidden=billView!=='pay';
   document.querySelectorAll('[data-bview]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.bview===billView)));
   const idx=ready?currentIndex()+offset:0;
   const p=ready?period(idx):{start:today(),end:addD(today(),14),key:'none'};
@@ -1295,7 +1476,7 @@ function render(){
 
   // ===== PLAN =====
   const byCat={}; items.forEach(x=>{if(x.amt>0) byCat[x.b.cat]=(byCat[x.b.cat]||0)+x.amt});
-  const slices=Object.keys(CATS).filter(k=>byCat[k]).map(k=>({id:'b:'+k,k,label:CATS[k].label,v:CATS[k].v,amt:byCat[k]}));
+  const slices=billCatKeys().filter(k=>byCat[k]).map(k=>({id:'b:'+k,k,label:bcat(k).label,v:bcat(k).v,amt:byCat[k]}));
   if(spent>0){ // spending, broken down by category (small ones grouped)
     const tot=ready?catTotals(p):{}, parts=Object.entries(tot).filter(([,v])=>v>0.004).sort((a,c)=>c[1]-a[1]);
     const pos=parts.reduce((a,[,v])=>a+v,0), scale=pos>0?spent/pos:1; // refunds lower the total, so slices are scaled to what you actually spent
@@ -1343,7 +1524,8 @@ function render(){
   $('sBills').textContent=money(bills); $('sDue').textContent=money(due); $('sSpent').textContent=money(spent);
   $('planReview').hidden=!newOnes.length;
   $('planReviewText').textContent=`${newOnes.length} new item${newOnes.length===1?'':'s'} from your bank to review`;
-  renderAccounts(); renderCardBox(ready&&offset===0,p,due); renderRecapBox(ready&&offset===0);
+  renderAccounts(); renderCardBox(ready&&offset===0,p,due); renderRecapBox(ready&&offset===0); renderExpiry(); renderBackupBox(ready);
+  if(tab==='invest') renderInvest();
 
   // ===== BILLS (timeline by due date) =====
   renderBillAsk();
@@ -1370,7 +1552,7 @@ function render(){
       let sub=x.date?`<span class="when ${cls}">${esc(when)}</span>`:x.note?`<span class="${x.warn?'tag':'due'}">${esc(x.note)}</span>`:'';
       if(x.actual!=null){ const mts=ready?(matchedFor(p)[x.b.id]||[]):[], auto=mts.some(t=>state.autoTx[t.id]), pend=pState[x.b.id]==='pending';
         sub+=`<span class="bill-actual">${esc(x.est?(x.amt>x.actual?`${money(x.actual)} paid so far · estimate ${money(x.est)}`:`Actual from your bank · estimate was ${money(x.est)}`):'Paid from your bank')}${pend&&!x.date?' · pending':''}${auto?' · <span class="auto">Matched automatically</span>':''}</span>`; }
-      return `<div class="row ${pd?'paid':''}"><label class="check ${pd?'on':''}"><input type="checkbox" data-paid="${x.b.id}" data-key="${p.key}" ${pd?'checked':''} aria-label="${esc(x.b.name)} paid"></label><button class="name" data-edit="${x.b.id}" data-key="${p.key}"><span class="lhs"><b><span class="dot" style="display:inline-block;background:var(${CATS[x.b.cat].v});margin-right:6px;vertical-align:1px"></span>${esc(x.b.name)}</b>${sub}${noteHtml(x.b.note)}</span>${x.b.amount||x.actual!=null?`<span class="amt">${money(x.amt)}</span>`:'<span class="zero">set amount</span>'}</button></div>`;
+      return `<div class="row ${pd?'paid':''}"><label class="check ${pd?'on':''}"><input type="checkbox" data-paid="${x.b.id}" data-key="${p.key}" ${pd?'checked':''} aria-label="${esc(x.b.name)} paid"></label><button class="name" data-edit="${x.b.id}" data-key="${p.key}"><span class="lhs"><b><span class="dot" style="display:inline-block;background:var(${bcat(x.b.cat).v});margin-right:6px;vertical-align:1px"></span>${esc(x.b.name)}</b>${sub}${noteHtml(x.b.note)}</span>${x.b.amount||x.actual!=null?`<span class="amt">${money(x.amt)}</span>`:'<span class="zero">set amount</span>'}</button></div>`;
     }).join('');
   }
   // bills paid from other paychecks: shown faded so nothing looks missing
@@ -1443,7 +1625,7 @@ function render(){
     $('movedNote').textContent=(any?'Counted from transfers you\'ve matched to these bills and bills you\'ve checked off.':'Check off your savings and investing bills, or match their bank transfers on the Spending tab, and this fills in.')+(invAccts.length?` Investments are worth ${money(invTot)} right now.`:'');
   }
   $('goalNote').textContent=!state.goal?'Set a monthly goal to track progress.':saving>=per?'On track for your goal this paycheck.':`${money(per-saving)} more this paycheck keeps you on pace for ${money(state.goal)} a month.`;
-  renderGoals(); renderHistory(); renderSearch(); renderRecurring(); renderAllBills();
+  renderGoals(); renderHistory(); renderSearch(); renderRecurring(); renderAllBills(); renderYearBills();
   { const subs=state.bills.filter(b=>!b.ended&&b.cat==='subs'&&b.freq!=='once'), mo=subs.reduce((a,b)=>a+b.amount*perMonth(b),0);
     $('subsSum').hidden=!subs.length; $('subsSum').textContent=subs.length?`Subscriptions: ${money(mo)} a month across ${subs.length}`:''; }
   render.key=p.key;
@@ -1453,7 +1635,8 @@ function render(){
 // cards: what you owe · investments: the account's full value (holdings + cash) · bank accounts: what you can spend
 function acctBalance(a){ return a.type==='credit'?(a.current||0):a.type==='investment'?(a.current!=null?a.current:(a.available||0)):(a.available!=null?a.available:(a.current||0)); }
 function allAccounts(){
-  return [...(banks.length?accounts:[]),...state.manual.map(m=>({account_id:'m:'+m.id,manual:m,name:m.name,type:m.type==='credit'?'credit':m.type==='investment'?'investment':'depository',subtype:m.type==='savings'||m.type==='checking'?m.type:'',current:m.balance,available:null,institution:'Added by you'}))];
+  const INV={investment:'brokerage',retirement:'retirement',brokercash:'cash management'};
+  return [...(banks.length?accounts:[]),...state.manual.map(m=>({account_id:'m:'+m.id,manual:m,name:m.name,type:m.type==='credit'?'credit':INV[m.type]?'investment':'depository',subtype:INV[m.type]||(m.type==='savings'||m.type==='checking'?m.type:''),current:m.balance,available:null,apy:m.apy||null,ends:m.ends||'',institution:'Added by you'}))];
 }
 let acctOpen=new Set(); try{ acctOpen=new Set(JSON.parse(localStorage.getItem('pp-acct-open')||'[]')); }catch(e){}
 $('accts').addEventListener('toggle',e=>{ const d=e.target; if(!d.dataset||!d.dataset.grp) return; d.open?acctOpen.add(d.dataset.grp):acctOpen.delete(d.dataset.grp); try{localStorage.setItem('pp-acct-open',JSON.stringify([...acctOpen]))}catch(e){} },true);
@@ -1466,7 +1649,8 @@ function renderAccounts(){
   const row=a=>{
     const bal=acctBalance(a), isCredit=a.type==='credit';
     const cls=isCredit?(bal>0.004?'bad':'good'):'';
-    const sub=isCredit?(bal>0.004?'Owed · pay to $0':'Paid off'):a.type==='investment'?({'roth':'Roth IRA','ira':'IRA','roth 401k':'Roth 401(k)','401k':'401(k)','brokerage':'Brokerage','hsa':'HSA'}[String(a.subtype||'').toLowerCase()]||'Investments')+' · total value'+(a.available!=null&&a.current!=null&&Math.abs(a.available-a.current)>=0.01?` · ${money(a.available)} not invested yet`:''):(a.subtype?a.subtype.replace(/\b\w/g,c=>c.toUpperCase()):'Account');
+    const apy=apyText(a);
+    const sub=isCredit?(bal>0.004?'Owed · pay to $0':'Paid off'):a.type==='investment'?({'roth':'Roth IRA','ira':'IRA','roth 401k':'Roth 401(k)','401k':'401(k)','brokerage':'Brokerage','hsa':'HSA'}[String(a.subtype||'').toLowerCase()]||'Investments')+' · total value'+(a.available!=null&&a.current!=null&&Math.abs(a.available-a.current)>=0.01?` · ${money(a.available)} not invested yet`:''):(a.subtype?a.subtype.replace(/\b\w/g,c=>c.toUpperCase()):'Account')+(apy?' · '+apy:'');
     if(a.manual) return `<button class="acct man" data-macct="${esc(a.manual.id)}"><span class="txname"><b>${esc(a.name||'Account')}</b><small>Updated by you${a.manual.updated?' · '+esc(ago(a.manual.updated)):''} · ${esc(sub)}</small></span><span class="amt ${cls}">${money(bal)}</span></button>`;
     return `<div class="acct"><span class="txname"><b>${esc(a.name||'Account')}${a.mask?' ••'+esc(a.mask):''}</b><small>${esc(a.institution||'')} · ${esc(sub)}</small></span><span class="amt ${cls}">${money(bal)}</span></div>`;
   };
@@ -1475,7 +1659,8 @@ function renderAccounts(){
   if(cash.length){ const t=cash.reduce((s,a)=>s+acctBalance(a),0); html+=grp('cash','Cash',money(t),cash.map(row).join('')); }
   if(credit.length){ const t=credit.reduce((s,a)=>s+acctBalance(a),0); html+=grp('credit','Credit cards',`<span style="color:var(${t>0.004?'--bad':'--good'})">${t>0.004?money(t)+' owed':'All at $0'}</span>`,credit.map(row).join('')); }
   const inv=other.filter(a=>a.type==='investment'), misc=other.filter(a=>a.type!=='investment');
-  if(inv.length){ const t=inv.reduce((s,a)=>s+acctBalance(a),0); html+=grp('inv','Investments',money(t),inv.map(row).join('')); }
+  if(inv.length){ const t=inv.reduce((s,a)=>s+acctBalance(a),0), w=invWhere(inv), soon=inv.map(endsInfo).filter(x=>x&&x.days<=7)[0];
+    html+=`<button class="invsum" data-go="invest"><span class="top2"><span class="gname">Investments</span><span class="gtot">${money(t)}</span></span><span class="abar mini">${w.map(g=>`<i style="width:${(g.v/(t||1)*100).toFixed(2)}%;background:var(${g.c})"></i>`).join('')}</span><small>${esc(w.map(g=>g.label).join(' · '))}${soon?` · <span style="color:var(--accent)">${esc(soon.text)}</span>`:''}</small></button>`; }
   if(misc.length){ html+=grp('misc','Other','',misc.map(row).join('')); }
   $('accts').innerHTML=html;
   const ts=banks.map(b=>b.last_synced).filter(Boolean).sort().pop();
@@ -1542,18 +1727,204 @@ $('recapClose').onclick=()=>$('recapDlg').close();
 let macEditing=null;
 function openMac(m){
   macEditing=m; $('macTitle').textContent=m?'Update account':'Add an account';
-  $('macName').value=m?m.name:''; $('macType').value=m?m.type:'savings'; $('macBal').value=m?m.balance:'';
+  $('macName').value=m?m.name:''; $('macType').value=m?m.type:(openMac.kind||'savings'); $('macBal').value=m?m.balance:''; openMac.kind='';
+  $('macApy').value=m&&m.apy?m.apy:''; $('macEnds').value=m&&m.ends?m.ends:''; macFields();
   $('macWhen').textContent=m&&m.updated?'Last updated '+ago(m.updated)+'.':''; $('macDel').style.display=m?'':'none'; $('macDlg').showModal();
 }
+function macFields(){ const t=$('macType').value; $('macApyWrap').hidden=!['savings','checking','brokercash'].includes(t); $('macEndsWrap').hidden=t!=='brokercash'; }
+$('macType').onchange=macFields;
 $('acctAdd').onclick=()=>openMac(null);
 $('accts').onclick=e=>{ const b=e.target.closest('[data-macct]'); if(b) openMac(state.manual.find(m=>m.id===b.dataset.macct)); };
 $('macCancel').onclick=()=>$('macDlg').close();
 $('macSave').onclick=()=>{
-  const v={name:$('macName').value.trim().slice(0,60)||'Account',type:$('macType').value,balance:+$('macBal').value||0,updated:new Date().toISOString()};
+  const ty=MAN_TYPES.includes($('macType').value)?$('macType').value:'savings';
+  const v={name:$('macName').value.trim().slice(0,60)||'Account',type:ty,balance:+$('macBal').value||0,updated:new Date().toISOString(),
+    apy:['savings','checking','brokercash'].includes(ty)?Math.max(0,Math.min(100,+$('macApy').value||0)):0,ends:ty==='brokercash'?keyOk($('macEnds').value):''};
   if(macEditing) Object.assign(macEditing,v); else { if(state.manual.length>=20) return; state.manual.push(Object.assign({id:uid()},v)); }
-  $('macDlg').close(); save();
+  $('macDlg').close(); save(); recordInvSnap();
 };
 $('macDel').onclick=()=>{ if(macEditing&&confirm(`Delete ${macEditing.name}?`)){ state.manual=state.manual.filter(m=>m!==macEditing); $('macDlg').close(); save(); } };
+
+// ---- investments ----
+let holdings=[], invTx=[];
+const str=(v,n)=>String(v==null?'':v).slice(0,n);
+function cleanHoldings(a){ return (Array.isArray(a)?a:[]).filter(isObj).slice(0,500).map(h=>({account_id:str(h.account_id,200),item_id:str(h.item_id,200),ticker:str(h.ticker,20),name:str(h.name,120),kind:str(h.kind,40),qty:num(h.qty),value:num(h.value),cost:h.cost==null||!isFinite(+h.cost)?null:+h.cost})); }
+function cleanInvTx(a){ return (Array.isArray(a)?a:[]).filter(isObj).slice(0,3000).map(t=>({account_id:str(t.account_id,200),item_id:str(t.item_id,200),date:keyOk(t.date),amount:num(t.amount),kind:str(t.kind,30),name:str(t.name,120),ticker:str(t.ticker,20)})).filter(t=>t.date); }
+const ROTH_LIMITS={2025:7000,2026:7500}; // IRS yearly limit under age 50
+function rothLimitFor(y){ if(state.rothLimit[y]) return state.rothLimit[y]; if(ROTH_LIMITS[y]) return ROTH_LIMITS[y]; const ks=Object.keys(ROTH_LIMITS).map(Number).sort((a,b)=>a-b); return ROTH_LIMITS[ks[ks.length-1]]; }
+const apyText=a=>+a.apy>0?(+a.apy).toFixed(2)+'% APY':'';
+const invAccounts=()=>allAccounts().filter(a=>a.type==='investment');
+function invGroupOf(a){ const s=String(a.subtype||'').toLowerCase(); if(s==='cash management') return 'cash'; return /roth|ira|401|403|457|retire|pension|keogh|thrift/.test(s)?'retire':'tax'; }
+const INV_GROUPS={retire:['Retirement','--f1'],tax:['Investing','--f3'],cash:['Cash at brokerages','--f-cash']};
+function invWhere(inv){ const t={}; for(const a of inv){ const g=invGroupOf(a); t[g]=(t[g]||0)+Math.max(0,acctBalance(a)); }
+  return ['retire','tax','cash'].filter(g=>t[g]>0.004).map(g=>({g,label:INV_GROUPS[g][0],c:INV_GROUPS[g][1],v:t[g]})); }
+function endsInfo(a){ const e=a.ends||(a.manual&&a.manual.ends); if(!e) return null; const days=Math.round((parseD(e)-today())/DAY);
+  return {days,text:days<0?'Bonus rate ended':days===0?'Bonus rate ends today':`Bonus rate ends in ${days} day${days===1?'':'s'}`}; }
+const TRACKS={VOO:'S&P 500',SPYM:'S&P 500',SPLG:'S&P 500',IVV:'S&P 500',SPY:'S&P 500',QQQM:'Nasdaq-100',QQQ:'Nasdaq-100',VTI:'Total US stock market',ITOT:'Total US stock market',VXUS:'International stock',VEA:'International stock',VT:'Total world stock',SCHD:'US dividend stock',BND:'US bond',AGG:'US bond',VGT:'US tech stock'};
+function fundLabel(r){ const t=String(r.ticker||'').toUpperCase(), k=String(r.kind||'').toLowerCase(), nm=r.name||'';
+  if(r.key==='_cash') return 'Not invested yet';
+  if(TRACKS[t]) return TRACKS[t]+' index fund';
+  if(k==='equity') return 'Single stock'+(nm?' · '+nm:'');
+  if(k==='etf') return 'ETF'+(nm?' · '+nm:'');
+  if(k==='mutual fund') return 'Mutual fund'+(nm?' · '+nm:'');
+  if(k==='cryptocurrency') return 'Crypto'+(nm?' · '+nm:'');
+  return nm||'Investment'; }
+function fundBreakdown(inv){ // every dollar in your investment accounts, by fund (cash and accounts without details included, so it adds up)
+  const ids=new Set(inv.map(a=>a.account_id)), by={}, held={};
+  const put=(key,init,v,cost)=>{ const r=by[key]=by[key]||Object.assign({key,value:0,cost:0,costKnown:true},init); r.value+=v; if(cost==null) r.costKnown=false; else r.cost+=cost; };
+  for(const h of holdings){ if(!ids.has(h.account_id)) continue; held[h.account_id]=(held[h.account_id]||0)+h.value;
+    if(String(h.kind).toLowerCase()==='cash') put('_cash',{ticker:'Cash',name:'Cash'},h.value,0);
+    else put(String(h.ticker||h.name||'?').toUpperCase(),{ticker:h.ticker||'',name:h.name||'',kind:h.kind},h.value,h.cost); }
+  let none=0;
+  for(const a of inv){ const bal=Math.max(0,acctBalance(a));
+    if(held[a.account_id]==null){ if(invGroupOf(a)==='cash') put('_cash',{ticker:'Cash',name:'Cash'},bal,0); else none+=bal; continue; }
+    const extra=bal-held[a.account_id]; if(extra>0.01) put('_cash',{ticker:'Cash',name:'Cash'},extra,0); }
+  const rows=Object.values(by).filter(r=>r.value>0.004).sort((a,b)=>(a.key==='_cash')-(b.key==='_cash')||b.value-a.value);
+  let i=0; for(const r of rows) r.c=r.key==='_cash'?'--f-cash':'--f'+(i++%6+1);
+  return {rows,none,has:holdings.some(h=>ids.has(h.account_id))};
+}
+function acctGain(a){ const hs=holdings.filter(h=>h.account_id===a.account_id&&String(h.kind).toLowerCase()!=='cash'); if(!hs.length||hs.some(h=>h.cost==null)) return null;
+  const v=hs.reduce((s,h)=>s+h.value,0), c=hs.reduce((s,h)=>s+h.cost,0); return {v,c,g:v-c,pct:c>0?(v-c)/c*100:0}; }
+const gainHtml=g=>g?`<small class="${g.g>=0?'up':'down'}">${g.g>=0?'+':'−'}${money(Math.abs(g.g))} (${g.g>=0?'+':'−'}${Math.abs(g.pct).toFixed(1)}%)</small>`:'';
+function recordInvSnap(){ // one balance per account per day, for the value-over-time chart
+  const inv=invAccounts(); if(!inv.length||!state) return;
+  const k=keyD(today()), v={}; for(const a of inv) v[String(a.account_id).slice(0,150)]=Math.round(acctBalance(a)*100)/100;
+  const old=state.invSnap[k]; if(old&&JSON.stringify(old)===JSON.stringify(v)) return;
+  state.invSnap[k]=v; const ks=Object.keys(state.invSnap).sort(); for(const x of ks.slice(0,Math.max(0,ks.length-400))) delete state.invSnap[x]; save();
+}
+function snapSeries(id){ return Object.keys(state.invSnap).sort().map(k=>{ const d=state.invSnap[k]; return [k,id?d[id]:Object.values(d).reduce((a,v)=>a+v,0)]; }).filter(p=>p[1]!=null&&isFinite(p[1])); }
+function lineChart(pts,label){
+  const W=320,H=120,pt=14,pb=18, xs=pts.map(p=>parseD(p[0]).getTime()), ys=pts.map(p=>p[1]);
+  let lo=Math.min(...ys), hi=Math.max(...ys); if(hi-lo<1){ hi+=1; lo-=1; } const pad=(hi-lo)*.12; lo-=pad; hi+=pad;
+  const x0=xs[0], x1=xs[xs.length-1], X=t=>((t-x0)/((x1-x0)||1)*W).toFixed(1), Y=v=>(pt+(hi-v)/(hi-lo)*(H-pt-pb)).toFixed(1);
+  const d=pts.map((p,i)=>(i?'L':'M')+X(xs[i])+' '+Y(ys[i])).join(' '), last=pts.length-1;
+  const f=k=>esc(fmt(parseD(k),{month:'short',day:'numeric'}));
+  return `<svg class="ichart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}"><path d="${d} L${W} ${H-pb} L0 ${H-pb} Z" fill="var(--c-savings)" fill-opacity=".13"/><path d="${d}" fill="none" stroke="var(--c-savings)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${X(xs[last])}" cy="${Y(ys[last])}" r="3.5" fill="var(--c-savings)"/><text x="0" y="${H-3}">${f(pts[0][0])}</text><text x="${W}" y="${H-3}" text-anchor="end">${f(pts[last][0])}</text><text x="0" y="9">${esc(money0(Math.max(...ys)))} high</text></svg>`;
+}
+function savedByMonth(n){ // money moved to savings & investing bills each calendar month: matched bank transfers, or bills you checked off
+  const t=today(), months=[]; for(let i=n-1;i>=0;i--){ const d=new Date(t.getFullYear(),t.getMonth()-i,1,12); months.push({key:keyD(d).slice(0,7),d,total:0,by:{}}); }
+  const M=Object.fromEntries(months.map(m=>[m.key,m])), sv=new Set(state.bills.filter(b=>b.cat==='savings'||b.cat==='investing').map(b=>b.id));
+  if(!sv.size) return months;
+  const add=(mk,id,v)=>{ const m=M[mk]; if(!m||!(v>0)) return; m.total+=v; m.by[id]=(m.by[id]||0)+v; };
+  for(const x of bankTx){ if(x.pending||!(x.amount>0)||(state.bankFrom&&x.date<state.bankFrom)) continue; const u=useOf(x); if(u.startsWith('bill:')&&sv.has(u.slice(5))) add(x.date.slice(0,7),u.slice(5),x.amount); }
+  if(state.anchor){ let i=Math.floor(Math.round((months[0].d-parseD(state.anchor))/DAY)/14)-1;
+    for(let q=period(i); q.start<=t; q=period(++i)){ const paid=state.paid[q.key]; if(!paid||!paid.length) continue; const mt=matchedFor(q);
+      for(const x of figures(q).items) if(sv.has(x.b.id)&&paid.includes(x.b.id)&&!(mt[x.b.id]||[]).length) add(keyD(x.date||q.start).slice(0,7),x.b.id,x.amt); } }
+  return months;
+}
+function rothInfo(){
+  const y=today().getFullYear(), ys=String(y), ra=invAccounts().filter(a=>/roth/i.test(String(a.subtype||''))||(a.manual&&/roth/i.test(a.name)));
+  const rb=state.bills.filter(b=>!b.ended&&(b.cat==='investing'||b.cat==='savings')&&/\broth\b|\bira\b/i.test(b.name));
+  if(!ra.length&&!rb.length) return null;
+  const ids=new Set(ra.map(a=>a.account_id)); let list=invTx.filter(t=>ids.has(t.account_id)&&(t.kind==='contribution'||t.kind==='deposit')&&t.amount>0), src='account';
+  if(!list.length){ src='bills'; const bid=new Set(rb.map(b=>b.id));
+    list=bankTx.filter(t=>!t.pending&&t.amount>0&&!(state.bankFrom&&t.date<state.bankFrom)&&useOf(t).startsWith('bill:')&&bid.has(useOf(t).slice(5))); }
+  const yr=list.filter(t=>t.date.startsWith(ys)), seen=yr.reduce((a,t)=>a+t.amount,0), early=num(state.rothEarly[ys]), total=seen+early;
+  const first=list.map(t=>t.date).sort()[0], days=first?Math.max(7,Math.min(56,(today()-parseD(first))/DAY+1)):56, since=keyD(addD(today(),-Math.round(days)));
+  const perWeek=list.filter(t=>t.date>=since).reduce((a,t)=>a+t.amount,0)/(days/7);
+  const weeksLeft=Math.max(0,(new Date(y,11,31,12)-today())/DAY/7);
+  return {y,total,early,perWeek,proj:total+perWeek*weeksLeft,limit:rothLimitFor(y),src,ra};
+}
+function invAcctRow(a){
+  const bal=acctBalance(a), g=acctGain(a), en=endsInfo(a), apy=apyText(a), sub=[];
+  sub.push(a.manual?'Updated by you'+(a.manual.updated?' '+ago(a.manual.updated):''):(a.institution||''));
+  const st=String(a.subtype||'').toLowerCase(); if(!a.manual&&st&&st!=='cash management') sub.push(({'roth':'Roth IRA','ira':'IRA','roth 401k':'Roth 401(k)','401k':'401(k)','brokerage':'Brokerage','hsa':'HSA'})[st]||st.replace(/\b\w/g,c=>c.toUpperCase()));
+  if(apy) sub.push(apy);
+  const cash=a.available!=null&&a.current!=null&&a.current-a.available>=0.01&&a.available>=0.01&&!a.manual?a.available:0;
+  return `<button class="iacct" data-inv="${esc(a.account_id)}"><span class="txname"><b>${esc(a.name||'Account')}${a.mask?' ••'+esc(a.mask):''}</b><small>${esc(sub.filter(Boolean).join(' · '))}${cash?`<span class="chip">${esc(money(cash))} not invested</span>`:''}${en?`<span class="chip ${en.days<=7?'bad':'warn'}">${esc(en.text)}</span>`:''}</small></span><span class="amt">${money(bal)}${gainHtml(g)}</span></button>`;
+}
+function renderInvest(){
+  const inv=invAccounts(), tot=inv.reduce((a,x)=>a+acctBalance(x),0), w=invWhere(inv), pos=w.reduce((a,g)=>a+g.v,0)||1;
+  const ts=banks.map(b=>b.last_synced).filter(Boolean).sort().pop();
+  $('invTotal').textContent=money(tot);
+  $('invSub').textContent=inv.length?`${inv.length} account${inv.length===1?'':'s'}${ts&&banks.length?' · updated '+ago(ts):''}`:'Connect your brokerage on the Spending tab, or add an account yourself.';
+  $('invBarWhere').innerHTML=w.map(g=>`<i style="width:${(g.v/pos*100).toFixed(2)}%;background:var(${g.c})"></i>`).join('');
+  $('invBarWhere').setAttribute('aria-label',w.map(g=>`${g.label} ${Math.round(g.v/pos*100)}%`).join(', ')||'No investments yet');
+  $('invLegWhere').innerHTML=w.map(g=>`<li><span class="fdot" style="background:var(${g.c})"></span>${esc(g.label)} <b>${money0(g.v)}</b> ${Math.round(g.v/pos*100)}%</li>`).join('');
+  // value over time
+  const pts=snapSeries();
+  $('invChartSec').hidden=pts.length<2;
+  if(pts.length>=2){ $('invChart').innerHTML=lineChart(pts,'Total investments over time'); const ch=pts[pts.length-1][1]-pts[0][1];
+    $('invChg').textContent=`${ch>=0?'+':'−'}${money0(Math.abs(ch))} since ${fmt(parseD(pts[0][0]),{month:'short',day:'numeric'})}`; }
+  // by fund
+  const fb=fundBreakdown(inv), ftot=fb.rows.reduce((a,r)=>a+r.value,0)+fb.none;
+  $('invFundSec').hidden=!fb.has;
+  if(fb.has){
+    $('invBarFund').innerHTML=fb.rows.map(r=>`<i style="width:${(r.value/(ftot||1)*100).toFixed(2)}%;background:var(${r.c})"></i>`).join('')+(fb.none>0.004?`<i style="width:${(fb.none/ftot*100).toFixed(2)}%;background:var(--f-none)"></i>`:'');
+    $('invBarFund').setAttribute('aria-label',fb.rows.map(r=>`${r.ticker||r.name} ${Math.round(r.value/ftot*100)}%`).join(', '));
+    $('invFunds').innerHTML=`<div class="frow thead"><span style="width:10px"></span><span class="fname">Fund</span><span class="fval">Value · gain</span></div>`+fb.rows.map(r=>{
+      const g=r.key!=='_cash'&&r.costKnown&&r.cost>0?{g:r.value-r.cost,pct:(r.value-r.cost)/r.cost*100}:null;
+      return `<div class="frow"><span class="fdot" style="background:var(${r.c})"></span><span class="fname"><b>${esc(r.ticker||r.name||'Fund')}</b><small>${esc(fundLabel(r))} · ${Math.round(r.value/ftot*100)}%</small></span><span class="fval"><b>${money(r.value)}</b>${gainHtml(g)}</span></div>`; }).join('')
+      +(fb.none>0.004?`<div class="frow"><span class="fdot" style="background:var(--f-none)"></span><span class="fname"><b>No fund details</b><small>Accounts the app can't see inside · ${Math.round(fb.none/ftot*100)}%</small></span><span class="fval"><b>${money(fb.none)}</b></span></div>`:'');
+    $('invFundNote').textContent='Gain is today\'s value minus what you paid, from your brokerage. Funds held in more than one account are combined.';
+  }
+  // accounts, grouped by what they're for
+  $('invAccts').innerHTML=inv.length?['retire','tax','cash'].map(g=>{ const list=inv.filter(a=>invGroupOf(a)===g); if(!list.length) return '';
+    return `<div class="igh"><span><span class="fdot" style="background:var(${INV_GROUPS[g][1]})"></span>${esc(INV_GROUPS[g][0])}</span><span>${money(list.reduce((s,a)=>s+acctBalance(a),0))}</span></div>`+list.map(invAcctRow).join(''); }).join(''):'<p class="empty">No investment accounts yet.</p>';
+  // Roth IRA
+  const r=rothInfo(); $('rothSec').hidden=!r;
+  if(r){ const over=r.total>r.limit+0.004;
+    $('rothTitle').textContent=`Roth IRA · ${r.y}`;
+    $('rothText').innerHTML=`<strong style="color:var(--ink)">${money(r.total)}</strong>&nbsp;of ${money(r.limit)} limit`;
+    $('rothPct').textContent=Math.round(r.total/r.limit*100)+'%';
+    $('rothDone').style.width=Math.min(100,r.total/r.limit*100)+'%'; $('rothProj').style.width=Math.min(100,r.proj/r.limit*100)+'%';
+    $('rothBar').classList.toggle('over',over);
+    const pace=r.perWeek>=1?`At your recent pace (about ${money0(r.perWeek)} a week) you'll reach about ${money0(r.proj)} by Dec 31${r.proj>r.limit?', which is over the limit':''}. `:'';
+    $('rothNote').textContent=(over?`That's ${money(r.total-r.limit)} over the limit. Your brokerage can help you fix extra contributions. `:pace)
+      +`Contributions for ${r.y} count until the April ${r.y+1} tax deadline.`+(r.src==='bills'?' Counted from transfers matched to your Roth bill'+(r.early?' plus earlier ones you added':'')+'.':r.early?' Includes earlier contributions you added.':'');
+  }
+  // saved & invested by month
+  const ms=savedByMonth(6), cur=ms[ms.length-1], hasSv=state.bills.some(b=>!b.ended&&(b.cat==='savings'||b.cat==='investing'));
+  $('monthSec').hidden=!hasSv;
+  if(hasSv){ const goal=state.goal||0, mname=fmt(cur.d,{month:'long'});
+    $('monthText').innerHTML=`<strong style="color:var(--ink)">${money(cur.total)}</strong>&nbsp;in ${esc(mname)} so far${goal?` of ${money(goal)} goal`:''}`;
+    $('monthPct').textContent=goal?Math.round(cur.total/goal*100)+'%':'';
+    $('monthBar').style.width=(goal?Math.min(100,cur.total/goal*100):0)+'%';
+    const ids=[...new Set(ms.flatMap(m=>Object.keys(m.by)))], col={}; let si=0, ii=0;
+    for(const id of ids){ const b=state.bills.find(x=>x.id===id); col[id]=b&&b.cat==='savings'?['--f1','--f2','--f6'][si++%3]:['--f3','--f4','--f5'][ii++%3]; }
+    const W=320,H=130,pb=18,pt=12,top=Math.max(goal,...ms.map(m=>m.total),1)*1.08, bw=W/ms.length*.56, Y=v=>H-pb-(v/top)*(H-pb-pt);
+    let svg=`<svg class="ichart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ms.map(m=>fmt(m.d,{month:'short'})+' '+money0(m.total)).join(', '))}">`;
+    ms.forEach((m,i)=>{ const cx=W/ms.length*(i+.5); let y0=H-pb;
+      for(const id of ids){ const v=m.by[id]||0; if(!v) continue; const h=(v/top)*(H-pb-pt); svg+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(y0-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h-1,0.5).toFixed(1)}" rx="3" fill="var(${col[id]})"${m===cur?' fill-opacity=".75"':''}/>`; y0-=h; }
+      svg+=`<text x="${cx.toFixed(1)}" y="${H-3}" text-anchor="middle">${esc(fmt(m.d,{month:'short'}))}</text>`; });
+    if(goal) svg+=`<line x1="0" x2="${W}" y1="${Y(goal).toFixed(1)}" y2="${Y(goal).toFixed(1)}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="4 4"/><text x="${W}" y="${(Y(goal)-4).toFixed(1)}" text-anchor="end" style="fill:var(--accent)">Goal ${esc(money0(goal))}</text>`;
+    $('monthChart').innerHTML=svg+'</svg>';
+    $('monthLeg').innerHTML=ids.map(id=>{ const b=state.bills.find(x=>x.id===id); return `<li><span class="fdot" style="background:var(${col[id]})"></span>${esc(b?b.name:'Bill')}</li>`; }).join('');
+    $('monthNote').textContent=goal?'From transfers matched to your savings and investing bills, or bills you checked off. Set the monthly goal on the Goals tab.':'Set a monthly goal on the Goals tab to see the goal line.';
+  }
+}
+// one account up close
+let invOpen=null;
+function openInv(id){
+  const a=invAccounts().find(x=>String(x.account_id)===id); if(!a) return; invOpen=a;
+  const bal=acctBalance(a), g=acctGain(a), en=endsInfo(a), hs=holdings.filter(h=>h.account_id===a.account_id&&String(h.kind).toLowerCase()!=='cash').sort((x,y)=>y.value-x.value);
+  $('invDlgTitle').textContent=(a.name||'Account')+(a.mask?' ••'+a.mask:'');
+  $('invDlgSub').textContent=[a.manual?'Added by you':a.institution,INV_GROUPS[invGroupOf(a)][0],apyText(a)].filter(Boolean).join(' · ');
+  let h=`<div class="ibig">${money(bal)}</div>`;
+  if(g) h+=`<div class="mrow" style="margin:2px 0 10px"><span>Put in ${money(g.c)}</span><strong class="${g.g>=0?'up':'down'}" style="color:var(${g.g>=0?'--good':'--bad'})">${g.g>=0?'+':'−'}${money(Math.abs(g.g))} (${g.g>=0?'+':'−'}${Math.abs(g.pct).toFixed(1)}%)</strong></div>`;
+  const cash=a.available!=null&&a.current!=null&&a.current-a.available>=0.01&&!a.manual?a.available:0;
+  if(cash>=0.01) h+=`<p class="note" style="margin:0 0 8px">${money(cash)} is cash that isn't invested yet.</p>`;
+  if(en) h+=`<p class="note" style="margin:0 0 8px;color:var(${en.days<=7?'--bad':'--accent'})">${esc(en.text)}${en.days>=0?' ('+esc(fmt(parseD(a.ends||a.manual.ends),{month:'short',day:'numeric'}))+')':''}. Move the cash back to your savings when it's over if the regular rate is lower.</p>`;
+  const pts=snapSeries(a.account_id); if(pts.length>=2&&Math.max(...pts.map(x=>x[1]))-Math.min(...pts.map(x=>x[1]))>=1) h+=lineChart(pts,(a.name||'Account')+' over time');
+  if(hs.length) h+=`<h3 class="igh" style="padding-top:12px">Funds</h3>`+hs.map(x=>{ const gg=x.cost!=null&&x.cost>0?{g:x.value-x.cost,pct:(x.value-x.cost)/x.cost*100}:null;
+    return `<div class="frow"><span class="fname"><b>${esc(x.ticker||x.name||'Fund')}</b><small>${x.qty?esc(+x.qty.toFixed(4)+' shares · '):''}${esc(fundLabel(x))}</small></span><span class="fval"><b>${money(x.value)}</b>${gainHtml(gg)}</span></div>`; }).join('');
+  const act=invTx.filter(t=>t.account_id===a.account_id).sort((x,y)=>x.date<y.date?1:-1).slice(0,15);
+  const LBL={contribution:'Contribution',deposit:'Deposit',withdrawal:'Withdrawal',buy:'Bought',sell:'Sold',dividend:'Dividend',interest:'Interest',fee:'Fee'};
+  if(act.length) h+=`<h3 class="igh" style="padding-top:12px">Money in &amp; activity</h3><div class="actlist">`+act.map(t=>`<div class="frow"><span class="fname"><b>${esc((LBL[t.kind]||t.name||'Activity')+(t.ticker&&!['contribution','deposit','withdrawal','fee','interest'].includes(t.kind)?' '+t.ticker:''))}</b><small>${esc(fmt(parseD(t.date),{month:'short',day:'numeric'}))}</small></span><span class="fval"><b${['contribution','deposit','dividend','interest'].includes(t.kind)?' style="color:var(--good)"':''}>${['contribution','deposit','dividend','interest'].includes(t.kind)?'+':''}${money(Math.abs(t.amount))}</b></span></div>`).join('')+'</div>';
+  else if(!a.manual) h+=`<p class="note">Fund details and activity show up here once this brokerage shares them with the app.</p>`;
+  $('invDlgBody').innerHTML=h; $('invDlgEdit').hidden=!a.manual; $('invDlg').showModal();
+}
+$('invAccts').onclick=e=>{ const b=e.target.closest('[data-inv]'); if(b) openInv(b.dataset.inv); };
+$('invDlgClose').onclick=()=>$('invDlg').close();
+$('invDlgEdit').onclick=()=>{ const m=invOpen&&invOpen.manual; $('invDlg').close(); if(m) openMac(m); };
+$('invAdd').onclick=()=>{ openMac.kind='investment'; openMac(null); };
+$('rothEdit').onclick=()=>{ const y=today().getFullYear(); $('rothEarlyIn').value=state.rothEarly[y]||''; $('rothLimitIn').value=rothLimitFor(y);
+  $('rothLimitNote').textContent=ROTH_LIMITS[y]?`The IRS limit for ${y} is ${money(ROTH_LIMITS[y])} if you're under 50. Change it only if yours is different.`:`Update this when the IRS announces the ${y} limit.`; $('rothDlg').showModal(); };
+$('rothCancel').onclick=()=>$('rothDlg').close();
+$('rothSave').onclick=()=>{ const y=String(today().getFullYear()), e=Math.max(0,+$('rothEarlyIn').value||0), l=Math.max(0,+$('rothLimitIn').value||0);
+  if(e) state.rothEarly[y]=Math.min(e,1e6); else delete state.rothEarly[y];
+  if(l&&l!==ROTH_LIMITS[y]) state.rothLimit[y]=Math.min(l,1e5); else delete state.rothLimit[y];
+  $('rothDlg').close(); save(); };
 
 // ---- savings goals ----
 function goalSaved(g){ if(g.account){ const a=allAccounts().find(x=>x.account_id===g.account); if(a) return acctBalance(a); } return g.saved; }
@@ -1611,9 +1982,18 @@ $('bills').onchange=e=>{const c=e.target.closest('input[data-paid]'); if(!c) ret
     }
   }
   setPaid(id,key,c.checked); };
-let billView='pay'; try{ billView=localStorage.getItem('pp-billview')==='all'?'all':'pay'; }catch(e){}
+let billView='pay'; try{ const v=localStorage.getItem('pp-billview'); billView=v==='all'||v==='year'?v:'pay'; }catch(e){}
 document.querySelector('.billseg').onclick=e=>{ const b=e.target.closest('[data-bview]'); if(!b) return; billView=b.dataset.bview; try{localStorage.setItem('pp-billview',billView)}catch(e){} render(); };
 // every bill you have, in one place
+// a small donut for the bills views (tap a slice to see just those bills)
+function billDonut(slices,whole,sel){
+  const R=78,C=2*Math.PI*R; let off=0, svg=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--left)" stroke-width="30"${sel?' class="dim"':''}/>`;
+  slices.forEach(x=>{ const len=x.amt/whole*C, on=x.id===sel; svg+=`<circle data-bsl="${esc(x.id)}" cx="100" cy="100" r="${R}" fill="none" stroke="var(${x.v})" stroke-width="${on?38:30}" stroke-dasharray="${Math.max(len-1.2,0.01)} ${C}" stroke-dashoffset="${-off}"${sel&&!on?' class="dim"':''}/>`; off+=len; });
+  return svg;
+}
+const billLegend=(slices,sel,fmtAmt,whole)=>`<ul class="legend${sel?' sel':''}">`+slices.map(x=>{ const on=x.id===sel; return `<li><button type="button" data-bsl="${esc(x.id)}" class="${on?'on':''}" aria-pressed="${on}"><span class="dot" style="background:var(${x.v})"></span>${esc(x.label)} <b>${fmtAmt(x.amt)}</b> <span class="pct">${whole>0?Math.max(x.amt/whole*100,0)<1?'<1':Math.round(x.amt/whole*100):0}%</span></button></li>`; }).join('')+'</ul>';
+const freqText=b=>b.freq==='paycheck'?'every paycheck':b.freq==='weekly'?'every week':b.freq==='monthly'?'monthly':b.freq==='twice'?'twice a month':everyText(b);
+let allSel=null, yearSel=null;
 function renderAllBills(){
   if(!state.anchor){ $('allBills').innerHTML='<p class="empty">Set your payday first.</p>'; return; }
   const ci=currentIndex(), cur=period(ci), t0=today(), rows=[];
@@ -1626,21 +2006,104 @@ function renderAllBills(){
     }
     rows.push({b,b0,next,q});
   }
-  if(!rows.length){ $('allBills').innerHTML='<h2>All bills</h2><p class="empty">No bills yet.</p>'; return; }
+  if(!rows.length){ $('allBills').innerHTML='<h2>All bills</h2><p class="empty">No bills yet.</p><div class="blinks"><button class="linkbtn" data-badd>+ Add a bill</button></div>'; return; }
   const recur=rows.filter(r=>r.b.freq!=='once'), mo=recur.reduce((a,r)=>a+r.b.amount*perMonth(r.b),0), subs=recur.filter(r=>r.b.cat==='subs').reduce((a,r)=>a+r.b.amount*perMonth(r.b),0);
-  const freqText=b=>b.freq==='paycheck'?'every paycheck':b.freq==='weekly'?'every week':b.freq==='monthly'?'monthly':b.freq==='twice'?'twice a month':everyText(b);
+  const income=state.paycheck*26/12, left=income-mo;
+  const byCat={}; for(const r of recur){ const v=r.b.amount*perMonth(r.b); if(v>0) byCat[r.b.cat]=(byCat[r.b.cat]||0)+v; }
+  const slices=billCatKeys().filter(k=>byCat[k]).map(k=>({id:k,label:bcat(k).label,v:bcat(k).v,amt:byCat[k]}));
+  if(left>0) slices.push({id:'left',label:'Left for spending',v:'--left',amt:left});
+  if(allSel&&!slices.some(x=>x.id===allSel)) allSel=null;
+  const whole=Math.max(income,mo)||1;
   const row=r=>{ const when=r.b.freq==='paycheck'?'Every paycheck':r.b.freq==='weekly'?`${money(r.b.amount)} a week`:r.next?`Next ${fmt(r.next,{weekday:'short',month:'short',day:'numeric'})} · from the ${fmt(r.q.start)} paycheck`:(r.b.due||r.b.next?'Not due in the next year':'Add a due date');
-    return `<div class="row"><button class="name" data-edit="${r.b0.id}" data-key="${r.q?r.q.key:cur.key}"><span class="lhs"><b><span class="dot" style="display:inline-block;background:var(${CATS[r.b.cat].v});margin-right:6px;vertical-align:1px"></span>${esc(r.b.name)}</b><span class="due">${esc(when)}</span>${noteHtml(r.b.note)}</span><span><span class="amt">${money(r.b.amount)}</span><span class="freq">${esc(freqText(r.b))}</span></span></button></div>`; };
-  let html=`<h2>All bills</h2><div class="alltot"><div><span>Per month</span><strong>${money0(mo)}</strong></div><div><span>Per paycheck</span><strong>${money0(mo*12/26)}</strong></div><div><span>Subscriptions</span><strong>${money0(subs)}/mo</strong></div></div><p class="sub">Every recurring bill and planned expense. Tap one to change it.</p>`;
-  for(const k of Object.keys(CATS)){
-    const g=recur.filter(r=>r.b.cat===k).sort((a,c)=>(a.next||t0)-(c.next||t0)); if(!g.length) continue;
-    const gt=g.reduce((a,r)=>a+r.b.amount*perMonth(r.b),0);
-    html+=`<div class="agroup"><div class="group-h"><span>${esc(CATS[k].label)}</span><span>${money(gt)}/mo</span></div>${g.map(row).join('')}</div>`;
+    return `<div class="row"><button class="name" data-edit="${r.b0.id}" data-key="${r.q?r.q.key:cur.key}"><span class="lhs"><b><span class="dot" style="display:inline-block;background:var(${bcat(r.b.cat).v});margin-right:6px;vertical-align:1px"></span>${esc(r.b.name)}</b><span class="due">${esc(when)}${r.b.spread?' · set aside each paycheck':''}</span>${noteHtml(r.b.note)}</span><span><span class="amt">${money(r.b.amount)}</span><span class="freq">${esc(freqText(r.b))}</span></span></button></div>`; };
+  let html=`<h2>All bills</h2><p class="sub" style="margin-bottom:0">What your bills cost in a typical month. Once-a-year ones count as a twelfth.</p>
+    <div class="hero sm"><svg viewBox="0 0 200 200" aria-hidden="true">${billDonut(slices,whole,allSel)}</svg><div class="center"><div class="big">${money0(mo)}</div><div class="lbl">in bills a month</div><div class="wk">${income?Math.round(mo/income*100)+'% of your pay':''}</div></div></div>
+    ${billLegend(slices,allSel,v=>money0(v),whole)}
+    <div class="alltot"><div><span>Per month</span><strong>${money0(mo)}</strong></div><div><span>Per paycheck</span><strong>${money0(mo*12/26)}</strong></div><div><span>Subscriptions</span><strong>${money0(subs)}/mo</strong></div></div>`;
+  if(allSel==='left'){
+    html+=`<div class="bfilter"><span>Your month, before spending</span><button data-bclear>Show all bills</button></div><div class="bmath"><div class="pmath"><span>Take-home (26 paychecks ÷ 12)</span><span>${money(income)}</span></div><div class="pmath"><span>Bills</span><span>− ${money(mo)}</span></div><div class="pmath tot"><span>Left for spending &amp; saving more</span><span>${money(left)}</span></div></div>`;
+  } else {
+    if(allSel) html+=`<div class="bfilter"><span>Showing ${esc(bcat(allSel).label)} only</span><button data-bclear>Show all</button></div>`;
+    else html+=`<p class="sub" style="margin:6px 0 0">Tap a slice to see just those bills. Tap a bill to change it.</p>`;
+    for(const k of billCatKeys()){
+      if(allSel&&k!==allSel) continue;
+      const g=recur.filter(r=>r.b.cat===k).sort((a,c)=>(a.next||t0)-(c.next||t0)); if(!g.length) continue;
+      const gt=g.reduce((a,r)=>a+r.b.amount*perMonth(r.b),0);
+      html+=`<div class="agroup"><div class="group-h"><span>${esc(bcat(k).label)}</span><span>${money(gt)}/mo</span></div>${g.map(row).join('')}</div>`;
+    }
+    const once=rows.filter(r=>r.b.freq==='once'&&(!allSel||r.b.cat===allSel)).sort((a,c)=>a.next-c.next);
+    if(once.length) html+=`<div class="agroup"><div class="group-h"><span>Planned one-time expenses</span><span>${money(once.reduce((a,r)=>a+r.b.amount,0))}</span></div>${once.map(row).join('')}</div>`;
   }
-  const once=rows.filter(r=>r.b.freq==='once').sort((a,c)=>a.next-c.next);
-  if(once.length) html+=`<div class="agroup"><div class="group-h"><span>Planned one-time expenses</span><span>${money(once.reduce((a,r)=>a+r.b.amount,0))}</span></div>${once.map(row).join('')}</div>`;
+  html+='<div class="blinks"><button class="linkbtn" data-badd>+ Add a bill</button><button class="linkbtn" data-bcats>Edit bill categories</button></div>';
   $('allBills').innerHTML=html;
 }
+// the next 12 months: every bill as it actually comes due (once-a-year ones included), against a year of paychecks
+function yearPlan(){
+  const t=today(), start=new Date(t.getFullYear(),t.getMonth(),1,12), end=new Date(t.getFullYear(),t.getMonth()+12,1,12);
+  const months=[]; for(let i=0;i<12;i++){ const d=new Date(start.getFullYear(),start.getMonth()+i,1,12); months.push({key:keyD(d).slice(0,7),d,total:0,by:{},reg:0,big:0}); }
+  const M=Object.fromEntries(months.map(m=>[m.key,m])), byBill={}, byCat={}; let pays=0;
+  let i=Math.floor(Math.round((start-parseD(state.anchor))/DAY)/14);
+  for(let q=period(i); q.start<end; q=period(++i)){
+    if(q.start>=start) pays++;
+    for(const x of figures(q).items){ const d=x.date||q.start; if(d<start||d>=end||!(x.amt>0)) continue;
+      const m=M[keyD(d).slice(0,7)]; if(!m) continue; const c=x.b.cat;
+      m.total+=x.amt; m.by[c]=(m.by[c]||0)+x.amt; byCat[c]=(byCat[c]||0)+x.amt; if(['annual','once','months'].includes(x.b.freq)) m.big+=x.amt; else m.reg+=x.amt;
+      const r=byBill[x.b.id]=byBill[x.b.id]||{b:x.b,total:0,count:0,dates:[]}; r.total+=x.amt; r.count++; if(x.date&&!x.spread) r.dates.push(x.date); }
+  }
+  const bills=months.reduce((a,m)=>a+m.total,0);
+  return {start,end,months,byBill,byCat,bills,pays,income:pays*state.paycheck};
+}
+function renderYearBills(){
+  if(!state.anchor){ $('yearBills').innerHTML='<p class="empty">Set your payday first.</p>'; return; }
+  if(billView!=='year'){ return; }
+  const Y=yearPlan(), left=Y.income-Y.bills, whole=Math.max(Y.income,Y.bills)||1;
+  const slices=billCatKeys().filter(k=>Y.byCat[k]>0.004).map(k=>({id:k,label:bcat(k).label,v:bcat(k).v,amt:Y.byCat[k]}));
+  if(left>0) slices.push({id:'left',label:'Left for the year',v:'--left',amt:left});
+  if(yearSel&&!slices.some(x=>x.id===yearSel)) yearSel=null;
+  const range=`${fmt(Y.start,{month:'short',year:'numeric'})} – ${fmt(new Date(Y.end.getFullYear(),Y.end.getMonth()-1,1,12),{month:'short',year:'numeric'})}`;
+  let html=`<h2>Next 12 months</h2><p class="sub" style="margin-bottom:0">${esc(range)} · every bill as it comes due, including once-a-year ones.</p>
+    <div class="hero sm"><svg viewBox="0 0 200 200" aria-hidden="true">${billDonut(slices,whole,yearSel)}</svg><div class="center"><div class="big">${money0(Y.bills)}</div><div class="lbl">in bills this year</div><div class="wk">${Y.income?Math.round(Y.bills/Y.income*100)+'% of your pay':''}</div></div></div>
+    ${billLegend(slices,yearSel,v=>money0(v),whole)}
+    <div class="alltot"><div><span>Take-home</span><strong>${money0(Y.income)}</strong></div><div><span>Bills</span><strong>${money0(Y.bills)}</strong></div><div><span>${left<0?'Short by':'Left'}</span><strong style="color:var(${left<0?'--bad':'--good'})">${money0(Math.abs(left))}</strong></div></div>
+    <p class="note" style="margin:-4px 0 10px">Take-home is ${Y.pays} paychecks of ${money(state.paycheck)}.</p>`;
+  // by month: every-month bills underneath, once-a-year and planned ones on top (or just the category you picked)
+  const one=yearSel&&yearSel!=='left'?yearSel:null, val=m=>one?(m.by[one]||0):m.total;
+  const top=Math.max(...Y.months.map(val),1)*1.1, W=320,H=140,pb=18,pt=8, avg=Y.months.reduce((a,m)=>a+val(m),0)/12, big=Y.months.reduce((a,m)=>val(m)>val(a)?m:a,Y.months[0]);
+  const bw=W/12*.62, Yp=v=>H-pb-(v/top)*(H-pb-pt);
+  let svg=`<svg class="ichart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(Y.months.map(m=>fmt(m.d,{month:'short'})+' '+money0(val(m))).join(', '))}">`;
+  Y.months.forEach((m,i)=>{ const cx=W/12*(i+.5), parts=one?[[val(m),bcat(one).v]]:[[m.reg,'--s-other'],[m.big,'--accent']]; let y0=H-pb;
+    for(const [v,c] of parts){ if(!(v>0)) continue; const h=(v/top)*(H-pb-pt); svg+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${(y0-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h-1,0.5).toFixed(1)}" rx="2.5" fill="var(${c})"/>`; y0-=h; }
+    svg+=`<text x="${cx.toFixed(1)}" y="${H-3}" text-anchor="middle">${esc(fmt(m.d,{month:'narrow'}))}</text>`; });
+  svg+=`<line x1="0" x2="${W}" y1="${Yp(avg).toFixed(1)}" y2="${Yp(avg).toFixed(1)}" stroke="var(--ink)" stroke-opacity=".45" stroke-width="1" stroke-dasharray="3 4"/>`;
+  html+=`<div class="h2row" style="margin-top:14px"><h2>By month</h2></div>${svg}</svg>`+(one?'':`<ul class="alegend" style="margin-top:4px"><li><span class="fdot" style="background:var(--s-other)"></span>Every-month bills</li><li><span class="fdot" style="background:var(--accent)"></span>Once a year &amp; planned</li></ul>`)
+    +`<p class="note" style="margin-top:6px">Dashed line: ${money0(avg)} a month on average. ${val(big)>avg*1.25?`${esc(fmt(big.d,{month:'long'}))} is the biggest at ${money0(val(big))}.`:one?'':'Your bills are spread fairly evenly.'}</p>`;
+  // the list
+  const list=Object.values(Y.byBill).filter(r=>!yearSel||yearSel==='left'||r.b.cat===yearSel).sort((a,c)=>c.total-a.total);
+  const big1=list.filter(r=>['annual','once','months'].includes(r.b.freq));
+  const yrow=r=>{ const d=r.dates[0], how=r.b.spread?`Set aside ${money(r.total/Math.max(r.count,1))} a paycheck`+(r.b.next?` for ${fmt(nextDueOf(r.b,today()),{month:'short',day:'numeric'})}`:''):['annual','once','months'].includes(r.b.freq)?(d?fmt(d,{month:'short',day:'numeric'}):'')+(r.count>1?` + ${r.count-1} more`:''):`${r.count} × ${money(r.total/r.count)}`;
+    return `<button class="yrow" data-edit="${esc(r.b.id)}" data-key=""><span><b><span class="dot" style="background:var(${bcat(r.b.cat).v})"></span>${esc(r.b.name)}</b><small>${esc(how)} · ${esc(freqText(r.b))}</small></span><span class="amt">${money0(r.total)}<small>this year</small></span></button>`; };
+  if(yearSel==='left') html+=`<div class="bfilter"><span>Your year, before spending</span><button data-yclear>Show all bills</button></div><div class="bmath"><div class="pmath"><span>Take-home (${Y.pays} paychecks)</span><span>${money(Y.income)}</span></div><div class="pmath"><span>Bills</span><span>− ${money(Y.bills)}</span></div><div class="pmath tot"><span>Left for spending &amp; saving more</span><span>${money(left)}</span></div></div>`;
+  else if(yearSel) html+=`<div class="bfilter" style="margin-top:12px"><span>${esc(bcat(yearSel).label)} · ${money0(Y.byCat[yearSel]||0)} this year</span><button data-yclear>Show all</button></div>${list.map(yrow).join('')}`;
+  else{
+    html+=`<div class="h2row" style="margin-top:14px"><h2>Once a year &amp; planned</h2></div><p class="sub" style="margin:0 0 4px">The big ones that don't come every month.</p>`+(big1.length?big1.map(yrow).join(''):'<p class="empty">None yet. Add things like Christmas, birthdays or car registration.</p>');
+    html+=`<p class="sub" style="margin:10px 0 0">Tap a slice above to see every bill in that category for the year.</p>`;
+  }
+  html+='<div class="blinks"><button class="linkbtn" data-yadd>+ Add a yearly expense</button><button class="linkbtn" data-bcats>Edit bill categories</button></div>';
+  $('yearBills').innerHTML=html;
+}
+$('allBills').addEventListener('click',e=>{
+  const sl=e.target.closest('[data-bsl]'); if(sl){ allSel=allSel===sl.dataset.bsl?null:sl.dataset.bsl; renderAllBills(); return; }
+  if(e.target.closest('[data-bclear]')){ allSel=null; renderAllBills(); return; }
+  if(e.target.closest('[data-badd]')){ openDlg(null); return; }
+  if(e.target.closest('[data-bcats]')) openBillCats();
+});
+$('yearBills').addEventListener('click',e=>{
+  const sl=e.target.closest('[data-bsl]'); if(sl){ yearSel=yearSel===sl.dataset.bsl?null:sl.dataset.bsl; renderYearBills(); return; }
+  if(e.target.closest('[data-yclear]')){ yearSel=null; renderYearBills(); return; }
+  if(e.target.closest('[data-yadd]')){ openDlg.preset='annual'; openDlg(null); return; }
+  if(e.target.closest('[data-bcats]')){ openBillCats(); return; }
+  const ed=e.target.closest('[data-edit]'); if(ed){ const b=state.bills.find(x=>x.id===ed.dataset.edit); if(b) openDlg(b,''); }
+});
 $('allBills').onclick=e=>{ const ed=e.target.closest('[data-edit]'); if(ed) openDlg(state.bills.find(x=>x.id===ed.dataset.edit),ed.dataset.key); };
 $('bills').onclick=e=>{
   if(e.target.closest('.check')) return;
@@ -1966,7 +2429,7 @@ $('txSave').onclick=()=>{
 };
 
 // ---- events: bill dialog ----
-$('fCat').innerHTML=Object.keys(CATS).map(k=>`<option value="${k}">${CATS[k].label}</option>`).join('');
+function fillBillCats(){ const cur=$('fCat').value; $('fCat').innerHTML=billCatKeys().map(k=>`<option value="${esc(k)}">${esc(bcat(k).label)}</option>`).join(''); if(cur) $('fCat').value=cur; }
 function freqFields(){
   const f=$('fFreq').value;
   $('dueWrap').hidden=!(f==='monthly'||f==='twice'); $('due2Wrap').hidden=f!=='twice';
@@ -1974,7 +2437,14 @@ function freqFields(){
   $('nWrap').hidden=!(f==='weeks'||f==='months'); $('fNLabel').textContent=f==='weeks'?'How many weeks apart':'How many months apart';
   $('fN').max=f==='weeks'?52:24; if(!$('fN').value) $('fN').placeholder=f==='weeks'?'e.g. 3':'e.g. 6';
   $('nextWrap').hidden=!(f==='weeks'||f==='months'||f==='annual'||f==='once'); $('fNextLabel').textContent=f==='once'?'Date':'Next due date';
+  $('fSpreadWrap').hidden=!(f==='annual'||f==='months'||f==='once'); spreadNote();
 }
+function spreadNote(){ const f=$('fFreq').value, a=+$('fAmt').value||0, n=Math.max(1,parseInt($('fN').value)||2);
+  if(!a||!$('fSpread').checked){ $('fSpreadNote').textContent="So it doesn't all come out of one paycheck."; return; }
+  if(f==='once'){ const d=$('fNext').value; if(!d||!state.anchor){ $('fSpreadNote').textContent='Split across the paychecks until the date.'; return; }
+    const i0=currentIndex(), iDue=Math.floor(Math.round((parseD(d)-parseD(state.anchor))/DAY)/14), k=Math.max(1,iDue-i0+1); $('fSpreadNote').textContent=`About ${money(a/k)} from each of the next ${k} paycheck${k===1?'':'s'}.`; return; }
+  $('fSpreadNote').textContent=`About ${money(a/((f==='annual'?12:n)*26/12))} from each paycheck.`; }
+['fAmt','fN','fNext'].forEach(id=>$(id).addEventListener('input',spreadNote)); $('fSpread').onchange=spreadNote;
 $('fFreq').onchange=freqFields;
 let editKey='';
 function paidBtn(){const on=editing&&isPaid(editing.id,editKey); $('fPaid').textContent=on?'Paid ✓  (tap to undo)':'Mark as paid'; $('fPaid').classList.toggle('on',!!on); $('fPaid').hidden=!editing||!editKey;}
@@ -1983,7 +2453,9 @@ function openDlg(b,key){
   pendingRule=null; editing=b; editKey=key||''; paidBtn(); $('dlgTitle').textContent=b?'Edit bill':'Add a bill';
   const v=b?(state.anchor&&billAt(b,viewKey())||b):null; // show the bill as it is for the paycheck you're looking at
   $('fName').value=v?v.name:''; $('fAmt').value=v&&v.amount?v.amount:'';
-  $('fFreq').value=v?v.freq:'monthly'; $('fN').value=v&&v.n?v.n:''; $('fDue2').value=v&&v.due2?v.due2:''; $('fDue').value=v&&v.due?v.due:''; $('fNext').value=v&&v.next?v.next:''; $('fCat').value=v?v.cat:'other'; $('fNote').value=v&&v.note?v.note:'';
+  fillBillCats(); $('fSpread').checked=!!(v&&v.spread);
+  $('fFreq').value=v?v.freq:(openDlg.preset||'monthly'); $('fN').value=v&&v.n?v.n:''; $('fDue2').value=v&&v.due2?v.due2:''; $('fDue').value=v&&v.due?v.due:''; $('fNext').value=v&&v.next?v.next:''; $('fCat').value=v?v.cat:'other'; $('fNote').value=v&&v.note?v.note:'';
+  if(!b&&openDlg.preset){ $('fSpread').checked=true; } openDlg.preset='';
   $('fWhen').textContent=!state.anchor?'':b?`Changes count from ${viewLabel()} on. Earlier paychecks keep the old details.`:`Starts with ${viewLabel()}. Earlier paychecks won't include it.`;
   freqFields(); $('fDel').style.display=b?'':'none'; $('dlg').showModal();
 }
@@ -1992,10 +2464,12 @@ $('fSave').onclick=()=>{
   const f=$('fFreq').value, day=v=>Math.min(31,Math.max(0,parseInt(v)||0));
   const v={name:$('fName').value.trim().slice(0,80)||'Bill',amount:Math.max(0,+$('fAmt').value||0),freq:f,
     n:f==='weeks'?Math.min(52,Math.max(1,parseInt($('fN').value)||3)):f==='months'?Math.min(24,Math.max(1,parseInt($('fN').value)||2)):0,
-    due:day($('fDue').value),due2:f==='twice'?day($('fDue2').value):0,next:$('fNext').value||(f==='once'?(viewKey()||keyD(today())):''),cat:$('fCat').value,note:$('fNote').value.trim().slice(0,300)};
+    due:day($('fDue').value),due2:f==='twice'?day($('fDue2').value):0,next:$('fNext').value||(f==='once'?(viewKey()||keyD(today())):''),cat:billCatKeys().includes($('fCat').value)?$('fCat').value:'other',note:$('fNote').value.trim().slice(0,300),
+    spread:$('fSpread').checked&&(f==='annual'||f==='months'||f==='once')};
+  const spreadStart=v.spread&&!(editing&&editing.spreadFrom&&editing.spread)?(viewKey()||period(currentIndex()).key):null;
   const k=viewKey();
-  if(editing){ if(k) changeBill(editing,v,k); else Object.assign(editing,v); }
-  else { const nb=Object.assign({id:uid(),from:k,ended:'',past:[]},v); state.bills.push(nb); if(pendingRule){ state.rules[pendingRule]='bill:'+nb.id; } }
+  if(editing){ if(k) changeBill(editing,v,k); else Object.assign(editing,v); if(spreadStart) editing.spreadFrom=spreadStart; }
+  else { const nb=Object.assign({id:uid(),from:k,ended:'',past:[],spreadFrom:spreadStart||''},v); state.bills.push(nb); if(pendingRule){ state.rules[pendingRule]='bill:'+nb.id; } }
   pendingRule=null; $('dlg').close(); save(); applyBillMatches();
 };
 $('fDel').onclick=()=>{
@@ -2005,6 +2479,29 @@ $('fDel').onclick=()=>{
   if(!k||k<=first) state.bills=state.bills.filter(x=>x!==editing); else editing.ended=k; // never existed before this paycheck: remove it completely
   $('dlg').close(); save();
 };
+
+// ---- your own bill categories ----
+function billCatUses(id){ return state.bills.filter(b=>b.cat===id||b.past.some(v=>v.cat===id)).length; }
+function renderBillCats(){
+  $('bcatList').innerHTML=billCatKeys().map(k=>{ const c=bcat(k), mine=!CATS[k];
+    return `<div class="catedit"><span class="dot" style="background:var(${c.v})"></span>${mine?`<input data-bcren="${esc(k)}" value="${esc(c.label)}" maxlength="30" aria-label="Category name">`:`<span style="flex:1">${esc(c.label)}</span><span class="keep">built in</span>`}${mine?`<button type="button" class="del" data-bcdel="${esc(k)}">Delete</button>`:''}</div>`; }).join('');
+}
+function openBillCats(){ $('bcatMsg').textContent=''; $('bcatNew').value=''; renderBillCats(); $('bcatDlg').showModal(); $('bcatNew').focus(); }
+$('fCatEdit').onclick=openBillCats;
+$('bcatAdd').onclick=()=>{
+  const label=$('bcatNew').value.trim().slice(0,30); if(!label){ $('bcatNew').focus(); return; }
+  if(state.billCats.length>=12){ $('bcatMsg').textContent="That's the most categories you can add (12)."; return; }
+  if(billCatKeys().some(k=>bcat(k).label.toLowerCase()===label.toLowerCase())){ $('bcatMsg').textContent='You already have that one.'; return; }
+  state.billCats=[...state.billCats,{id:'bc'+Math.random().toString(36).slice(2,10).replace(/[^a-z0-9]/g,'x'),label}];
+  $('bcatNew').value=''; $('bcatMsg').textContent=`Added ${label}.`; save(); renderBillCats(); fillBillCats();
+};
+$('bcatNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('bcatAdd').click(); } });
+$('bcatList').addEventListener('change',e=>{ const i=e.target.closest('[data-bcren]'); if(!i) return; const label=i.value.trim().slice(0,30);
+  if(!label){ renderBillCats(); return; } state.billCats=state.billCats.map(c=>c.id===i.dataset.bcren?{id:c.id,label}:c); save(); fillBillCats(); });
+$('bcatList').addEventListener('click',e=>{ const d=e.target.closest('[data-bcdel]'); if(!d) return; const n=billCatUses(d.dataset.bcdel);
+  if(n){ $('bcatMsg').textContent=`${n} bill${n===1?' uses':'s use'} this category. Move ${n===1?'it':'them'} to another category first.`; return; }
+  state.billCats=state.billCats.filter(c=>c.id!==d.dataset.bcdel); save(); renderBillCats(); fillBillCats(); });
+$('bcatDone').onclick=()=>{ $('bcatDlg').close(); fillBillCats(); };
 
 // ---- events: goals ----
 let goalEditing=null;
@@ -2028,7 +2525,14 @@ $('gSave').onclick=()=>{
 $('gDel').onclick=()=>{if(goalEditing&&confirm(`Delete ${goalEditing.name}?`)){state.goals=state.goals.filter(g=>g!==goalEditing);$('goalDlg').close();save()}};
 
 // ---- backup ----
+function renderBackupBox(ready){
+  const t=keyD(today()), due=!state.lastBackup||state.lastBackup<=keyD(addD(today(),-30));
+  $('backupBox').hidden=!(ready&&due&&!(state.backupLater&&state.backupLater>t));
+}
+$('backupNow').onclick=()=>$('backup').click();
+$('backupLater').onclick=()=>{ state.backupLater=keyD(addD(today(),7)); save(); };
 $('backup').onclick=()=>{
+  state.lastBackup=keyD(today()); state.backupLater=''; save();
   const blob=new Blob([JSON.stringify({app:'Paycheck Plan',exported:new Date().toISOString(),plan:state},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`paycheck-plan-backup-${keyD(today())}.json`;
   document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
@@ -2065,19 +2569,22 @@ function renderBankBar(msg){
   if(!has){ $('bankInfo').textContent=bankBusy?'Checking for your bank…':'Connect your bank and purchases show up here on their own.'; return; }
   if(bankBusy){ $('bankInfo').innerHTML=`<b>${banks.map(b=>esc(b.institution||'Bank')).join(', ')}</b> · updating…`; return; }
   const latest=banks.map(b=>b.last_synced).filter(Boolean).sort().pop();
-  const bad=banks.filter(b=>b.status&&b.status!=='ok');
-  $('bankInfo').innerHTML=`<b>${banks.map(b=>esc(b.institution||'Bank')).join(', ')}</b> · ${bad.length?'<span style="color:var(--bad)">'+esc((bad[0].institution||'A bank')+' '+bankProblem(bad[0]))+'</span> · tap Manage to fix':'updated '+esc(ago(latest))}`;
+  const bad=banks.filter(b=>b.status&&b.status!=='ok'), exp=expiringBanks()[0];
+  $('bankInfo').innerHTML=`<b>${banks.map(b=>esc(b.institution||'Bank')).join(', ')}</b> · ${bad.length?'<span style="color:var(--bad)">'+esc((bad[0].institution||'A bank')+' '+bankProblem(bad[0]))+'</span> · tap Manage to fix':exp?'<span style="color:var(--accent)">'+esc(expiryText(exp))+'</span> · tap Manage to renew':'updated '+esc(ago(latest))}`;
 }
 function setBankTx(rows){ bankTx=rows; carryFromPending(); }
 async function fetchBankTx(){ // saved purchases come straight from your database: quick, and no bank calls needed
   if(DEMO) return demoTx();
-  const from=keyD(addD(today(),-200));
-  let r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution,pending_id,account_id').gte('date',from).order('date',{ascending:false}).limit(2000);
-  if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution,pending_id').gte('date',from).order('date',{ascending:false}).limit(2000);
-  if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,detail,institution').gte('date',from).order('date',{ascending:false}).limit(2000);
-  if(r.error) r=await sb.from('bank_transactions').select('id,date,name,amount,pending,category,institution').gte('date',from).order('date',{ascending:false}).limit(2000); // before the detail column exists
+  const jan1=keyD(new Date(today().getFullYear(),0,1,12)), d200=keyD(addD(today(),-200)), from=jan1<d200?jan1:d200;
+  const cols=['id,date,name,amount,pending,category,detail,institution,pending_id,account_id','id,date,name,amount,pending,category,detail,institution,pending_id','id,date,name,amount,pending,category,detail,institution','id,date,name,amount,pending,category,institution'];
+  // read 1,000 at a time (the database hands back at most that many per request)
+  const page=(c,i)=>sb.from('bank_transactions').select(c).gte('date',from).order('date',{ascending:false}).order('id',{ascending:true}).range(i,i+999);
+  let ci=0, r=await page(cols[0],0);
+  while(r.error&&++ci<cols.length) r=await page(cols[ci],0); // older database setups without the newer columns
   if(r.error) throw r.error;
-  return (r.data||[]).map(t=>({...t,amount:+t.amount}));
+  let rows=r.data||[];
+  for(let i=1000; rows.length===i&&i<5000; i+=1000){ const n=await page(cols[ci],i); if(n.error) break; rows=rows.concat(n.data||[]); }
+  return rows.map(t=>({...t,amount:+t.amount}));
 }
 function carryFromPending(){ // a posted purchase gets a new id from the bank; bring over your note, category and choices
   let changed=false;
@@ -2104,7 +2611,12 @@ async function syncBank(force){
     // a bank that didn't answer keeps its last-known balances instead of disappearing
     const slow=new Set(list.filter(b=>b.fresh===false).map(b=>b.item_id));
     accounts=list.length?[...(Array.isArray(r.accounts)?r.accounts:[]),...accounts.filter(a=>a.item_id&&slow.has(a.item_id))]:[];
-    banks=list; writeBankCache();
+    banks=list;
+    { // fund details: replaced for brokerages that just answered; others keep what they last shared
+      const got=new Set((Array.isArray(r.inv_items)?r.inv_items:[]).map(String)), live=new Set(list.map(b=>b.item_id));
+      holdings=[...cleanHoldings(r.holdings).filter(h=>got.has(h.item_id)),...holdings.filter(h=>!got.has(h.item_id)&&live.has(h.item_id))];
+      invTx=[...cleanInvTx(r.inv_tx).filter(t=>got.has(t.item_id)),...invTx.filter(t=>!got.has(t.item_id)&&live.has(t.item_id))]; }
+    writeBankCache(); recordInvSnap();
     if(r.changed||!bankTx.length) setBankTx(await fetchBankTx());
     bankBusy=false; renderBankBar(); render(); applyBillMatches();
   }catch(e){ bankBusy=false; lastSync=0; renderBankBar("Couldn't update from your bank ("+e.message+"). Showing what was saved; tap Refresh to try again."); if(!banks.length) $('bankRefresh').hidden=false; }
@@ -2152,18 +2664,29 @@ $('bankAddMore').onclick=()=>{ $('bankDlg').close(); connectBank(); };
 $('bankRefresh').onclick=()=>syncBank(true);
 $('bankClose').onclick=()=>$('bankDlg').close();
 $('bankManage').onclick=()=>{
-  $('bankList').innerHTML=banks.map(b=>{ const prob=bankProblem(b);
-    return `<div class="row"><span class="name" style="cursor:default"><span class="txname"><b>${esc(b.institution||'Bank')}</b><small${prob?' style="color:var(--bad)"':''}>${prob?esc('This bank '+prob):'Updated '+esc(ago(b.last_synced))}</small>${prob?'':`<button class="linkbtn" data-acctsel="${esc(b.item_id)}" style="padding:4px 0 0;font-size:.82rem;text-align:left">Add or change accounts</button>`}</span></span>${prob?`<button class="btn" data-relink="${esc(b.item_id)}" style="padding:7px 10px">Reconnect</button>`:''}<button class="btn danger" data-unlink="${esc(b.item_id)}" style="padding:7px 10px">Disconnect</button></div>`; }).join('')||'<p class="empty">No banks connected.</p>';
+  $('bankList').innerHTML=banks.map(b=>{ const prob=bankProblem(b), ex=expiringBanks().find(x=>x.b===b);
+    return `<div class="row"><span class="name" style="cursor:default"><span class="txname"><b>${esc(b.institution||'Bank')}</b><small${prob?' style="color:var(--bad)"':ex?' style="color:var(--accent)"':''}>${prob?esc('This bank '+prob):ex?esc(`Access ${ex.days<0?'ended':'ends'} ${fmt(ex.date,{month:'short',day:'numeric'})}`):'Updated '+esc(ago(b.last_synced))}</small>${prob||ex?'':`<button class="linkbtn" data-acctsel="${esc(b.item_id)}" style="padding:4px 0 0;font-size:.82rem;text-align:left">Add or change accounts</button>`}</span></span>${prob||ex?`<button class="btn" data-relink="${esc(b.item_id)}" style="padding:7px 10px">${prob?'Reconnect':'Renew'}</button>`:''}<button class="btn danger" data-unlink="${esc(b.item_id)}" style="padding:7px 10px">Disconnect</button></div>`; }).join('')||'<p class="empty">No banks connected.</p>';
   $('bankDlg').showModal();
 };
+async function relinkBank(item_id,mode){ // fixes or updates the existing connection, so it never uses up another bank connection
+  if(DEMO){ renderBankBar('Renewing a bank is turned off in the preview.'); return; }
+  renderBankBar('Opening secure bank connection…'); loadPlaid().catch(()=>{});
+  try{ const {link_token}=await callPlaid({action:'relink',item_id,accounts:mode==='accounts'}); try{localStorage.setItem('plaid_link_token',link_token); localStorage.setItem('plaid_link_mode',mode);}catch(e){} openLink(link_token,null,mode); }
+  catch(err){ renderBankBar("Couldn't open your bank: "+err.message); }
+}
+function expiringBanks(){ // connections whose access ends within 30 days (some banks let you choose 6 months or a year)
+  return banks.map(b=>{ const t=Date.parse(b.consent_expires||''); if(!isFinite(t)||b.status&&b.status!=='ok') return null; const days=Math.ceil((t-Date.now())/DAY); return days<=30?{b,days,date:new Date(t)}:null; }).filter(Boolean).sort((a,c)=>a.days-c.days);
+}
+const expiryText=x=>`${x.b.institution||'Bank'} access ${x.days<0?'ended':'ends'} ${fmt(x.date,{month:'short',day:'numeric'})}`;
+function renderExpiry(){
+  const x=expiringBanks().find(x=>x.days<=14);
+  $('expiryBox').hidden=!x; if(!x) return;
+  $('expiryText').textContent=`${expiryText(x)}. Renew it so your purchases keep coming in.`; $('expiryGo').dataset.item=x.b.item_id;
+}
+$('expiryGo').onclick=()=>relinkBank($('expiryGo').dataset.item,'update');
 $('bankList').onclick=async e=>{
   const r=e.target.closest('[data-relink],[data-acctsel]');
-  if(r){ // fixes or updates the existing connection, so it never uses up another bank connection
-    const mode=r.dataset.acctsel?'accounts':'update', item_id=r.dataset.acctsel||r.dataset.relink;
-    $('bankDlg').close(); renderBankBar('Opening secure bank connection…'); loadPlaid().catch(()=>{});
-    try{ const {link_token}=await callPlaid({action:'relink',item_id,accounts:mode==='accounts'}); try{localStorage.setItem('plaid_link_token',link_token); localStorage.setItem('plaid_link_mode',mode);}catch(e){} openLink(link_token,null,mode); }
-    catch(err){ renderBankBar("Couldn't open your bank: "+err.message); }
-    return; }
+  if(r){ $('bankDlg').close(); relinkBank(r.dataset.acctsel||r.dataset.relink,r.dataset.acctsel?'accounts':'update'); return; }
   const b=e.target.closest('[data-unlink]'); if(!b) return;
   if(!confirm('Disconnect this bank? Its transactions will be removed from your app.\n\nOn the free plan this connection is used up for good, and connecting the bank again uses another one. To fix a bank or add accounts, use Reconnect or "Add or change accounts" instead.')) return;
   b.disabled=true;
@@ -2174,7 +2697,11 @@ $('bankList').onclick=async e=>{
 // ---- preview data (only used in the preview) ----
 function demoState(){
   const t=today(), anchor=keyD(addD(t,-5));
-  return normalize({paycheck:3000,goal:900,anchor,bankFrom:keyD(addD(t,-120)),
+  // made-up investment history for the preview: about 5 months of balances
+  const snap={}; for(let n=150;n>=0;n-=2){ const k=keyD(addD(t,-n)), w=Math.sin(n/9)*90+Math.sin(n/23)*160;
+    snap[k]={'acc-roth':Math.round((8420.55-n*11.2+w)*100)/100,'acc-brk':Math.round((2150.3-n*3.1+w*.3)*100)/100}; if(n<=20) snap[k]['m:moo']=5000; }
+  snap[keyD(t)]={'acc-roth':8420.55,'acc-brk':2150.3,'m:moo':5000};
+  return normalize({paycheck:3000,goal:1000,anchor,bankFrom:keyD(addD(t,-200)),invSnap:snap,
     bills:[
       {id:'d1',name:'Rent',amount:1400,cat:'housing',freq:'monthly',due:1},
       {id:'d2',name:'Car payment',amount:450,cat:'car',freq:'monthly',due:12},
@@ -2182,14 +2709,18 @@ function demoState(){
       {id:'d4',name:'Electric',amount:120,cat:'utilities',freq:'monthly',due:t.getDate()+2>28?3:t.getDate()+2},
       {id:'d5',name:'Phone',amount:65,cat:'utilities',freq:'monthly',due:22},
       {id:'d6',name:'High-yield savings',amount:200,cat:'savings',freq:'paycheck'},
-      {id:'d7',name:'Retirement',amount:50,cat:'investing',freq:'weekly'},
+      {id:'d7',name:'Roth IRA',amount:60,cat:'investing',freq:'weekly'},
       {id:'d8',name:'Streaming',amount:15.99,cat:'subs',freq:'monthly',due:9},
       {id:'d9',name:'Car registration',amount:180,cat:'car',freq:'annual',next:keyD(addD(t,40))},
-      {id:'d10',name:'Dog food',amount:68,cat:'pets',freq:'weeks',n:3,next:keyD(addD(t,4))}
+      {id:'d10',name:'Dog food',amount:68,cat:'pets',freq:'weeks',n:3,next:keyD(addD(t,4))},
+      {id:'d11',name:'Christmas',amount:800,cat:'bcholiday1',freq:'annual',next:`${t.getMonth()===11&&t.getDate()>20?t.getFullYear()+1:t.getFullYear()}-12-20`,spread:true,spreadFrom:anchor},
+      {id:'d12',name:'Birthdays',amount:300,cat:'bcholiday1',freq:'annual',next:keyD(addD(t,150))},
+      {id:'d13',name:'Car insurance renewal',amount:420,cat:'insurance',freq:'months',n:6,next:keyD(addD(t,70))}
     ],
+    billCats:[{id:'bcholiday1',label:'Holidays & gifts'}],
     spends:{[anchor]:[{id:'m1',name:'Farmers market',amount:22,cat:'groceries'}]},
-    limits:{dining:120,groceries:250}, rules:{'city power light':'bill:d4'},
-    manual:[{id:'h2',name:'Second savings',type:'savings',balance:5200,updated:addD(t,-12).toISOString()}],
+    limits:{dining:120,groceries:250}, rules:{'city power light':'bill:d4','robinhood':'bill:d7','transfer to savings':'bill:d6'},
+    manual:[{id:'h2',name:'Second savings',type:'savings',balance:5200,apy:3.8,updated:addD(t,-12).toISOString()},{id:'moo',name:'Moomoo cash sweep',type:'brokercash',balance:5000,apy:8.1,ends:keyD(addD(t,41)),updated:addD(t,-3).toISOString()}],
     goals:[{id:'g1',name:'Emergency fund',target:6000,account:'acc-sav',monthly:433},{id:'g2',name:'Trip to Hawaii',target:2500,saved:640,monthly:150}]
   });
 }
@@ -2197,7 +2728,8 @@ function demoTx(){
   const t=today(), d=n=>keyD(addD(t,-n)), out=[];
   const shops=[['Trader Joe\'s',64.2,'FOOD_AND_DRINK','FOOD_AND_DRINK_GROCERIES'],['Chipotle',14.85,'FOOD_AND_DRINK','FOOD_AND_DRINK_FAST_FOOD'],['Shell',48.1,'TRANSPORTATION','TRANSPORTATION_GAS'],['Target',37.66,'GENERAL_MERCHANDISE','GENERAL_MERCHANDISE_SUPERSTORES'],['DoorDash',31.4,'FOOD_AND_DRINK','FOOD_AND_DRINK_RESTAURANT'],['Petco',42,'GENERAL_MERCHANDISE','GENERAL_MERCHANDISE_PET_SUPPLIES'],['AMC Theatres',24,'ENTERTAINMENT','ENTERTAINMENT_TV_AND_MOVIES'],['Walgreens',12.49,'MEDICAL','MEDICAL_PHARMACIES_AND_SUPPLEMENTS'],['Smith\'s',88.3,'FOOD_AND_DRINK','FOOD_AND_DRINK_GROCERIES'],['Starbucks',7.25,'FOOD_AND_DRINK','FOOD_AND_DRINK_COFFEE']];
   for(let n=0;n<84;n++){ const s=shops[(n*7)%shops.length]; if(n%2===0||n<4) out.push({id:'t'+n,date:d(n),name:s[0],amount:+(s[1]*(0.8+((n*13)%9)/20)).toFixed(2),pending:n===0,category:s[2],detail:s[3],institution:n%3?'Demo Bank':'Demo Card',account_id:n%3?'acc-chk':'acc-cc1'}); }
-  out.push({id:'x1',date:d(1),name:'Transfer to Savings',amount:200,pending:false,category:'TRANSFER_OUT',detail:'TRANSFER_OUT_SAVINGS',institution:'Demo Bank',account_id:'acc-chk'});
+  for(let n=1;n<190;n+=14) out.push({id:'sv'+n,date:d(n),name:'Transfer to Savings',amount:200,pending:false,category:'TRANSFER_OUT',detail:'TRANSFER_OUT_SAVINGS',institution:'Demo Bank',account_id:'acc-chk'});
+  for(let n=2;n<190;n+=7) out.push({id:'rh'+n,date:d(n),name:'Robinhood',amount:60,pending:false,category:'TRANSFER_OUT',detail:'TRANSFER_OUT_INVESTMENT_AND_RETIREMENT_FUNDS',institution:'Demo Bank',account_id:'acc-chk'});
   out.push({id:'x2',date:d(5),name:'Payroll Deposit',amount:-2986.4,account_id:'acc-chk',pending:false,category:'INCOME',detail:'INCOME_WAGES',institution:'Demo Bank'});
   out.push({id:'x3',date:d(2),name:'Venmo from Sam',amount:-40,pending:false,category:'TRANSFER_IN',detail:'TRANSFER_IN_ACCOUNT_TRANSFER',institution:'Demo Bank',account_id:'acc-chk'});
   out.push({id:'x4',date:d(4),name:'Payment to Rewards Card',amount:250,pending:false,category:'LOAN_PAYMENTS',detail:'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT',institution:'Demo Bank',account_id:'acc-chk'});
@@ -2206,16 +2738,26 @@ function demoTx(){
   out.push({id:'x6',date:d(1),name:'City Power & Light',amount:134.27,pending:false,category:'RENT_AND_UTILITIES',detail:'RENT_AND_UTILITIES_GAS_AND_ELECTRICITY',institution:'Demo Bank',account_id:'acc-chk'});
   return out;
 }
+function demoHoldings(){ const h=(a,ticker,name,kind,qty,value,cost)=>({account_id:a,item_id:'i3',ticker,name,kind,qty,value,cost});
+  return [h('acc-roth','VOO','Vanguard S&P 500 ETF','etf',5.62,3420.1,3010),h('acc-roth','SPYM','SPDR Portfolio S&P 500 ETF','etf',30.1,2350.4,2105),h('acc-roth','QQQM','Invesco Nasdaq 100 ETF','etf',7.4,1810.2,1530),h('acc-roth','JPM','JPMorgan Chase & Co.','equity',2.8,827.45,690),h('acc-roth','','Cash','cash',12.4,12.4,null),
+    h('acc-brk','VOO','Vanguard S&P 500 ETF','etf',2.04,1240,1180),h('acc-brk','QQQM','Invesco Nasdaq 100 ETF','etf',3.56,870.3,905)]; }
+function demoInvTx(){ const t=today(), out=[];
+  for(let d=new Date(t.getFullYear(),0,2,12);d<=t;d=addD(d,7)) out.push({account_id:'acc-roth',item_id:'i3',date:keyD(d),amount:60,kind:'contribution',name:'Contribution'});
+  for(let n=1;n<120;n+=7) out.push({account_id:'acc-roth',item_id:'i3',date:keyD(addD(t,-n)),amount:15,kind:'buy',name:'Buy',ticker:['VOO','SPYM','QQQM','JPM'][(n>>3)%4]});
+  out.push({account_id:'acc-roth',item_id:'i3',date:keyD(addD(t,-20)),amount:9.12,kind:'dividend',name:'Dividend',ticker:'VOO'});
+  for(let n=5;n<180;n+=30) out.push({account_id:'acc-brk',item_id:'i3',date:keyD(addD(t,-n)),amount:100,kind:'deposit',name:'Deposit'});
+  return out; }
 function demoPlaid(body){
   const now=new Date().toISOString();
-  if(body.action==='list') return {banks:[{item_id:'i1',institution:'Demo Bank',status:'ok',last_synced:now},{item_id:'i2',institution:'Demo Card',status:'ok',last_synced:now}]};
-  if(body.action==='refresh') return {banks:demoPlaid({action:'list'}).banks.map(b=>({...b,fresh:true})),accounts:demoPlaid({action:'balances'}).accounts,changed:true};
+  if(body.action==='list') return {banks:[{item_id:'i1',institution:'Demo Bank',status:'ok',last_synced:now},{item_id:'i2',institution:'Demo Card',status:'ok',last_synced:now,consent_expires:addD(new Date(),10).toISOString()},{item_id:'i3',institution:'Demo Brokerage',status:'ok',last_synced:now}]};
+  if(body.action==='refresh') return {banks:demoPlaid({action:'list'}).banks.map(b=>({...b,fresh:true})),accounts:demoPlaid({action:'balances'}).accounts,changed:true,inv_items:['i3'],holdings:demoHoldings(),inv_tx:demoInvTx()};
   if(body.action==='balances') return {accounts:[
     {account_id:'acc-chk',name:'Everyday Checking',mask:'1234',type:'depository',subtype:'checking',current:1840.22,available:1790.22,institution:'Demo Bank'},
-    {account_id:'acc-sav',name:'High-Yield Savings',mask:'5678',type:'depository',subtype:'savings',current:3150,available:3150,institution:'Demo Bank'},
+    {account_id:'acc-sav',name:'High-Yield Savings',mask:'5678',type:'depository',subtype:'savings',current:3150,available:3150,apy:4.1,institution:'Demo Bank'},
     {account_id:'acc-cc1',name:'Rewards Card',mask:'4321',type:'credit',subtype:'credit card',current:212.47,institution:'Demo Card'},
     {account_id:'acc-cc2',name:'Cash Back Card',mask:'8765',type:'credit',subtype:'credit card',current:0,institution:'Demo Card'},
-    {account_id:'acc-roth',name:'Roth IRA',mask:'9012',type:'investment',subtype:'roth',current:4210.55,available:12.4,institution:'Demo Brokerage'}]};
+    {account_id:'acc-roth',name:'Roth IRA',mask:'9012',type:'investment',subtype:'roth',current:8420.55,available:12.4,institution:'Demo Brokerage',item_id:'i3'},
+    {account_id:'acc-brk',name:'Individual',mask:'3456',type:'investment',subtype:'brokerage',current:2150.3,available:40,institution:'Demo Brokerage',item_id:'i3'}]};
   return {};
 }
 
@@ -2274,9 +2816,13 @@ $('mfaForm').onsubmit=async e=>{
   if(code.length!==6){ showAuth('Enter all 6 digits.',true); return; }
   $('mfaGo').disabled=true; $('authMsg').className=''; $('authMsg').textContent='Checking…';
   try{
-    const f=(await mfaFactors()).verified[0]; if(!f) throw new Error("Two-step login isn't set up on this account.");
-    const ch=await sb.auth.mfa.challenge({factorId:f.id}); if(ch.error) throw ch.error;
-    const v=await sb.auth.mfa.verify({factorId:f.id,challengeId:ch.data.id,code}); if(v.error) throw v.error;
+    const fs=(await mfaFactors()).verified; if(!fs.length) throw new Error("Two-step login isn't set up on this account.");
+    let lastErr=null, ok=false;
+    for(const f of fs){ // your main authenticator or a backup: whichever made this code
+      const ch=await sb.auth.mfa.challenge({factorId:f.id}); if(ch.error){ lastErr=ch.error; continue; }
+      const v=await sb.auth.mfa.verify({factorId:f.id,challengeId:ch.data.id,code}); if(!v.error){ ok=true; break; } lastErr=v.error;
+    }
+    if(!ok) throw lastErr||new Error('invalid code');
     const {data:{session}}=await sb.auth.getSession();
     $('mfaForm').hidden=true; $('authForm').hidden=false; $('aForgot').hidden=false; $('authSub').textContent='Sign in to see your plan.';
     startApp(session.user); if(mfaThenPw) setTimeout(()=>openPw(true),50);
@@ -2286,10 +2832,19 @@ $('mfaForm').onsubmit=async e=>{
 $('mfaOut').onclick=async()=>{ clearDeviceData(); try{ await sb.auth.signOut(); }catch(e){} location.reload(); };
 
 // turning it on and off (Settings)
-let tfaPending=null, tfaFactor=null, demoTfa=false;
+let tfaPending=null, tfaFactor=null, demoTfa=false, tfaAdding=false, tfaAll=[];
 function tfaMode(m){ // 'setup' | 'on' | 'loading'
   $('tfaSetup').hidden=m!=='setup'; $('tfaOn').hidden=m!=='on';
   $('tfaVerify').hidden=m!=='setup'; $('tfaOff').hidden=m!=='on';
+  $('tfaVerify').textContent=tfaAdding?'Add backup':'Turn on';
+  $('tfaSetup').querySelector('.sub').textContent=tfaAdding?'Set this up on a second device or in your password manager. Then a code from either one gets you in.':"After your password, the app will also ask for a 6-digit code from an authenticator app (Apple Passwords, Google Authenticator or Authy). A stolen password alone won't open your plan.";
+}
+function renderTfaList(list){
+  tfaAll=list.slice().sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+  $('tfaList').innerHTML=tfaAll.map((f,i)=>{ const d=Date.parse(f.created_at);
+    return `<div class="frow"><span class="fname"><b>${i===0?'Main authenticator':'Backup authenticator'+(tfaAll.length>2?' '+i:'')}</b><small>${isFinite(d)?'Added '+esc(fmt(new Date(d),{month:'short',day:'numeric',year:'numeric'})):''}</small></span>${tfaAll.length>1?`<button type="button" data-tfadel="${esc(f.id)}">Remove</button>`:''}</div>`; }).join('');
+  $('tfaAddBackup').hidden=tfaAll.length>=3;
+  $('tfaBackupNote').textContent=tfaAll.length>1?'A code from any of these works when you sign in.':"A backup (on another device, or in a password manager) means losing your phone never locks you out. A code from any of them works.";
 }
 function setTfaLabel(on){ $('twoStepState').textContent=on?'On':'Off'; $('twoStepState').className='setstate'+(on?' on':''); }
 async function refreshTfaLabel(){ if(DEMO){ setTfaLabel(demoTfa); return; } try{ setTfaLabel((await mfaFactors()).verified.length>0); }catch(e){} }
@@ -2304,14 +2859,14 @@ function showQr(qr,secret,uri){
 $('twoStep').onclick=async()=>{
   $('tfaMsg').textContent=''; $('tfaCode').value=''; tfaPending=null; tfaFactor=null;
   if(DEMO){ // preview: shows how it looks, nothing is set up
-    if(demoTfa) tfaMode('on'); else { tfaMode('setup'); showQr('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" shape-rendering="crispEdges"><path d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z" fill="#111"/><path d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z" fill="#fff"/><path d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM9 1h2v2H9zM8 4h3v1H8zM9 8h4v2H9zM14 9h2v3h-2zM8 12h2v4H8zM12 14h5v2h-5zM17 17h3v3h-3zM11 18h3v2h-3z" fill="#111"/></svg>','PREVIEW-ONLY-KEY','otpauth://totp/Paycheck%20Plan:preview?secret=PREVIEW'); }
+    tfaAdding=false; if(demoTfa){ renderTfaList(demoTfaList); tfaMode('on'); } else { tfaMode('setup'); showQr('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" shape-rendering="crispEdges"><path d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z" fill="#111"/><path d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z" fill="#fff"/><path d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM9 1h2v2H9zM8 4h3v1H8zM9 8h4v2H9zM14 9h2v3h-2zM8 12h2v4H8zM12 14h5v2h-5zM17 17h3v3h-3zM11 18h3v2h-3z" fill="#111"/></svg>','PREVIEW-ONLY-KEY','otpauth://totp/Paycheck%20Plan:preview?secret=PREVIEW'); }
     $('tfaDlg').showModal(); return;
   }
   tfaMode('loading'); $('tfaMsg').textContent='Loading…'; $('tfaDlg').showModal();
   try{
     const st=await mfaFactors();
     for(const f of st.unverified){ try{ await sb.auth.mfa.unenroll({factorId:f.id}); }catch(e){} } // clear any half-finished setup
-    if(st.verified.length){ tfaFactor=st.verified[0].id; tfaMode('on'); $('tfaMsg').textContent=''; return; }
+    tfaAdding=false; if(st.verified.length){ tfaFactor=st.verified[0].id; renderTfaList(st.verified); tfaMode('on'); $('tfaMsg').textContent=''; return; }
     const {data,error}=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'Paycheck Plan '+Date.now().toString(36)}); if(error) throw error;
     tfaPending=data.id; showQr(data.totp&&data.totp.qr_code,data.totp&&data.totp.secret,data.totp&&data.totp.uri);
     tfaMode('setup'); $('tfaMsg').textContent='';
@@ -2319,23 +2874,43 @@ $('twoStep').onclick=async()=>{
 };
 $('tfaVerify').onclick=async()=>{
   const code=$('tfaCode').value.replace(/\D/g,''); if(code.length!==6){ $('tfaMsg').textContent='Enter the 6-digit code from your authenticator app.'; return; }
-  if(DEMO){ demoTfa=true; $('tfaDlg').close(); setTfaLabel(true); status('Two-step login is on (preview only).'); return; }
+  if(DEMO){ if(tfaAdding) demoTfaList.push({id:'demo'+demoTfaList.length,created_at:new Date().toISOString()}); demoTfa=true; $('tfaDlg').close(); setTfaLabel(true); status(tfaAdding?'Backup authenticator added (preview only).':'Two-step login is on (preview only).'); tfaAdding=false; return; }
   $('tfaVerify').disabled=true; $('tfaMsg').textContent='Checking…';
   try{
     const ch=await sb.auth.mfa.challenge({factorId:tfaPending}); if(ch.error) throw ch.error;
     const v=await sb.auth.mfa.verify({factorId:tfaPending,challengeId:ch.data.id,code}); if(v.error) throw v.error;
-    tfaPending=null; $('tfaDlg').close(); setTfaLabel(true); status('Two-step login is on. Keep your authenticator app safe.');
+    tfaPending=null; $('tfaDlg').close(); setTfaLabel(true); status(tfaAdding?'Backup authenticator added. A code from either one works when you sign in.':'Two-step login is on. Keep your authenticator app safe.'); tfaAdding=false;
   }catch(err){ $('tfaMsg').textContent=/invalid|expired|code/i.test(String(err&&err.message))?"That code didn't work. Use the newest code (they change every 30 seconds).":(err&&err.message)||'Try again.'; }
   $('tfaVerify').disabled=false;
 };
 $('tfaOff').onclick=async()=>{
   if(!confirm('Turn off two-step login? Signing in will only need your password again.')) return;
-  if(DEMO){ demoTfa=false; $('tfaDlg').close(); setTfaLabel(false); return; }
-  try{ const {error}=await sb.auth.mfa.unenroll({factorId:tfaFactor}); if(error) throw error; try{ await sb.auth.refreshSession(); }catch(e){}
+  if(DEMO){ demoTfa=false; demoTfaList.length=1; $('tfaDlg').close(); setTfaLabel(false); return; }
+  try{ const all=tfaAll.length?tfaAll:[{id:tfaFactor}]; // backups too, newest first, so it's never left half on
+    for(const f of all.slice().reverse()){ const {error}=await sb.auth.mfa.unenroll({factorId:f.id}); if(error) throw error; }
+    try{ await sb.auth.refreshSession(); }catch(e){}
     $('tfaDlg').close(); setTfaLabel(false); status('Two-step login is off.'); }
   catch(err){ $('tfaMsg').textContent="Couldn't turn it off: "+((err&&err.message)||'try again.'); }
 };
-$('tfaClose').onclick=async()=>{ const pend=tfaPending; tfaPending=null; $('tfaDlg').close(); if(pend&&!DEMO){ try{ await sb.auth.mfa.unenroll({factorId:pend}); }catch(e){} } };
+const demoTfaList=[{id:'demo0',created_at:'2026-10-12T18:00:00Z'}];
+$('tfaAddBackup').onclick=async()=>{
+  tfaAdding=true; $('tfaMsg').textContent=''; $('tfaCode').value='';
+  if(DEMO){ showQr('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" shape-rendering="crispEdges"><path d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z" fill="#111"/><path d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z" fill="#fff"/><path d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM9 1h2v2H9zM8 4h3v1H8zM9 8h4v2H9zM14 9h2v3h-2zM8 12h2v4H8zM12 14h5v2h-5zM17 17h3v3h-3zM11 18h3v2h-3z" fill="#111"/></svg>','PREVIEW-ONLY-KEY','otpauth://totp/Paycheck%20Plan:backup?secret=PREVIEW'); tfaMode('setup'); return; }
+  tfaMode('loading'); $('tfaMsg').textContent='Loading…';
+  try{ const {data,error}=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'Backup '+Date.now().toString(36)}); if(error) throw error;
+    tfaPending=data.id; showQr(data.totp&&data.totp.qr_code,data.totp&&data.totp.secret,data.totp&&data.totp.uri); tfaMode('setup'); $('tfaMsg').textContent=''; }
+  catch(err){ tfaAdding=false; tfaMode('on'); $('tfaMsg').textContent="Couldn't add a backup: "+((err&&err.message)||'try again in a minute.'); }
+};
+$('tfaList').onclick=async e=>{
+  const b=e.target.closest('[data-tfadel]'); if(!b||tfaAll.length<2) return;
+  if(!confirm('Remove this authenticator? Its codes will stop working. Your other one keeps working.')) return;
+  if(DEMO){ const i=demoTfaList.findIndex(f=>f.id===b.dataset.tfadel); if(i>=0) demoTfaList.splice(i,1); renderTfaList(demoTfaList); return; }
+  b.disabled=true;
+  try{ const {error}=await sb.auth.mfa.unenroll({factorId:b.dataset.tfadel}); if(error) throw error; renderTfaList((await mfaFactors()).verified); status('Authenticator removed.'); }
+  catch(err){ b.disabled=false; $('tfaMsg').textContent="Couldn't remove it: "+((err&&err.message)||'try again.'); }
+};
+$('tfaClose').onclick=async()=>{ tfaAdding=false; };
+$('tfaClose').addEventListener('click',async()=>{ const pend=tfaPending; tfaPending=null; $('tfaDlg').close(); if(pend&&!DEMO){ try{ await sb.auth.mfa.unenroll({factorId:pend}); }catch(e){} } });
 
 async function openPw(fromReset){
   if(DEMO){ status('Changing your password is turned off in the preview.'); return; }
