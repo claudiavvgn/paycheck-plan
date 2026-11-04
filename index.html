@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-NRHnQZaJ1icwl4oaHHAeGRZcDAF9Tq9XRI4gtn1E64U=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-LyedH9yTwZAkCEbcQ2L8K2VgZJN4CtzNI/5oEFjhTj0=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -2873,11 +2873,24 @@ function renderBackupBox(ready){
 }
 $('backupNow').onclick=()=>$('backup').click();
 $('backupLater').onclick=()=>{ state.backupLater=keyD(addD(today(),7)); save(); };
-$('backup').onclick=()=>{
-  state.lastBackup=keyD(today()); state.backupLater=''; save();
-  const blob=new Blob([JSON.stringify({app:'Paycheck Plan',exported:new Date().toISOString(),plan:state},null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`paycheck-plan-backup-${keyD(today())}.json`;
+// iPhone and iPad can't download a file from a home-screen app, so the backup goes to the share sheet instead,
+// where "Save to Files" keeps it (Mail only works if Apple's Mail app is set up on the phone)
+const isApple=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+function backedUp(){ state.lastBackup=keyD(today()); state.backupLater=''; save(); }
+$('backup').onclick=async()=>{
+  const name=`paycheck-plan-backup-${keyD(today())}.json`, text=JSON.stringify({app:'Paycheck Plan',exported:new Date().toISOString(),plan:state},null,2);
+  if(isApple()&&navigator.canShare&&navigator.share){
+    let file=null; try{ file=new File([text],name,{type:'application/json'}); }catch(e){}
+    if(file&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file]}); backedUp(); status('Backup saved. Pick "Save to Files" in that menu to keep it in the Files app.'); }
+      catch(e){ if(!(e&&e.name==='AbortError')) status("Couldn't open the save menu. Try again, or use a computer to download the backup.",true); }
+      return;
+    }
+  }
+  const blob=new Blob([text],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
   document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
+  backedUp(); status('Backup downloaded: '+name);
 };
 
 $('restore').onclick=()=>{ $('restoreFile').value=''; $('restoreFile').click(); };
@@ -3196,7 +3209,7 @@ $('mfaOut').onclick=async()=>{ clearDeviceData(); try{ await sb.auth.signOut(); 
 
 // ---- lock when away: after the app has been in the background (or untouched) a while, it asks for your 6-digit code ----
 let locked=false, tfaOn=false, lastMark=0;
-function lockMins(){ let v=null; try{ v=localStorage.getItem('pp-lock'); }catch(e){} if(v==null) return 15; const n=+v; return [0,5,15,60].includes(n)?n:15; }
+function lockMins(){ let v=null; try{ v=localStorage.getItem('pp-lock'); }catch(e){} const n=+v; return v!=null&&[5,15,60].includes(n)?n:0; } // off unless you turn it on in Settings
 function markActive(force){ const n=Date.now(); if(!force&&n-lastMark<30000) return; lastMark=n; try{ localStorage.setItem('pp-active',String(n)); }catch(e){} }
 function awayTooLong(){ const m=lockMins(); if(!m||!tfaOn||DEMO||!startedFor) return false; let t=0; try{ t=+localStorage.getItem('pp-active')||0; }catch(e){} return t>0&&Date.now()-t>m*60000; }
 function lockApp(){
@@ -3206,7 +3219,7 @@ function lockApp(){
 }
 function renderLock(){
   $('lockSel').value=String(tfaOn&&!DEMO?lockMins():0);
-  $('lockHint').textContent=DEMO?'Turned off in the preview':tfaOn?'Asks for your 6-digit code':'Turn on two-step login to use this';
+  $('lockHint').textContent=DEMO?'Turned off in the preview':tfaOn?(lockMins()?'Asks for your 6-digit code after this long away':'Your code is only asked for when you sign in'):'Turn on two-step login to use this';
 }
 $('lockSel').onchange=()=>{
   if(DEMO||!tfaOn){ renderLock(); status(DEMO?'The lock is turned off in the preview.':'Turn on two-step login first. The lock uses your 6-digit code.'); return; }
