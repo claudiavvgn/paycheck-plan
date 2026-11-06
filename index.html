@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-IrNtX/8v2GHun7FrJWOORB8DJU0v9F57QGyj20aSzNE=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OSZeuj2sXsXfNQDQmhF1X5p8psk9HveO0pDCEARfMko=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -909,6 +909,7 @@ h3.igh{margin:0}
   <form id="pwForm" method="post" action="#">
     <input type="email" name="username" id="pwUser" autocomplete="username" hidden>
     <label for="pwNew">New password</label><input id="pwNew" name="new-password" type="password" autocomplete="new-password" minlength="12" required>
+    <div id="pwCodeWrap" hidden><label for="pwCode">Code from your email</label><input id="pwCode" name="one-time-code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" pattern="[0-9]*"><button class="linkbtn" id="pwResend" type="button">Send a new code</button></div>
     <p id="pwMsg" class="note" role="status"></p>
     <div class="actions">
       <button class="btn" id="pwSave" type="submit">Save new password</button>
@@ -3460,7 +3461,7 @@ $('tfaClose').addEventListener('click',async()=>{ const pend=tfaPending; tfaPend
 async function openPw(fromReset){
   if(DEMO){ status('Changing your password is turned off in the preview.'); return; }
   $('pwTitle').textContent=fromReset?'Set a new password':'Change password';
-  $('pwNew').value=''; $('pwMsg').textContent='';
+  $('pwNew').value=''; $('pwMsg').textContent=''; $('pwCode').value=''; $('pwCodeWrap').hidden=true; $('pwNew').disabled=false; $('pwSave').textContent='Save new password';
   try{ const {data}=await sb.auth.getUser(); $('pwUser').value=data&&data.user?data.user.email||'':''; }catch(e){}
   $('pwDlg').showModal();
 }
@@ -3469,11 +3470,30 @@ $('pwCancel').onclick=()=>$('pwDlg').close();
 $('pwForm').onsubmit=async e=>{
   e.preventDefault(); const pw=$('pwNew').value;
   if(pw.length<12){ $('pwMsg').textContent='Use at least 12 characters.'; return; }
+  const needCode=!$('pwCodeWrap').hidden, code=$('pwCode').value.replace(/\D/g,'');
+  if(needCode&&code.length<6){ $('pwMsg').textContent='Enter the code from your email.'; $('pwCode').focus(); return; }
   $('pwSave').disabled=true; $('pwMsg').textContent='Saving…';
-  try{ const {error}=await sb.auth.updateUser({password:pw}); if(error) throw error; $('pwDlg').close(); status('Password updated.'); }
-  catch(err){ $('pwMsg').textContent=err.message||"Couldn't change your password. Try again."; }
+  try{
+    const {error}=await sb.auth.updateUser(needCode?{password:pw,nonce:code}:{password:pw});
+    if(error){
+      const c=String(error.code||''), m=String(error.message||'');
+      // changing a password needs a recent sign-in; otherwise Supabase emails a code to prove it's you
+      if(!needCode&&(c==='reauthentication_needed'||/reauthenticat/i.test(m))){ await pwSendCode(); $('pwSave').disabled=false; return; }
+      if(needCode&&(c==='reauthentication_not_valid'||/nonce|reauthenticat/i.test(m))) throw new Error("That code didn't work. Use the newest email, or send a new code.");
+      throw error; }
+    $('pwDlg').close(); status('Password updated.');
+  }catch(err){ $('pwMsg').textContent=err.message||"Couldn't change your password. Try again."; }
   $('pwSave').disabled=false;
 };
+async function pwSendCode(){
+  $('pwMsg').textContent='Sending a code to your email…';
+  const {error}=await sb.auth.reauthenticate();
+  if(error){ $('pwMsg').textContent=/rate|limit|seconds/i.test(String(error.message))?'Too many emails just now. Wait a few minutes, then tap Send a new code.':(error.message||"Couldn't send the code. Try again."); $('pwCodeWrap').hidden=false; return; }
+  $('pwCodeWrap').hidden=false; $('pwNew').disabled=true; $('pwSave').textContent='Change password';
+  $('pwMsg').textContent=`To keep your account safe, we emailed a code to ${$('pwUser').value||'your email'}. Enter it to finish.`;
+  setTimeout(()=>$('pwCode').focus(),50);
+}
+$('pwResend').onclick=async()=>{ $('pwResend').disabled=true; try{ await pwSendCode(); }catch(e){ $('pwMsg').textContent="Couldn't send the code. Try again."; } setTimeout(()=>{ $('pwResend').disabled=false; },30000); };
 $('signOutAll').onclick=async()=>{
   if(DEMO){ status('Signing out is turned off in the preview.'); return; }
   if(!confirm('Sign out on every phone and computer that has your plan open, including this one? Use this if a device is lost.')) return;
