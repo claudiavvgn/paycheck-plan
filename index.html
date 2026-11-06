@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-LyedH9yTwZAkCEbcQ2L8K2VgZJN4CtzNI/5oEFjhTj0=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-IrNtX/8v2GHun7FrJWOORB8DJU0v9F57QGyj20aSzNE=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -481,6 +481,19 @@ h1,h2,.big,.sum strong,.period strong{letter-spacing:-.015em}
 #txAuto[hidden]{display:none}
 #txAuto button{background:none;border:0;color:var(--accent);font-weight:700;padding:4px 0;white-space:nowrap;text-decoration:underline}
 #recurList .rrow:last-child{border-bottom:0}
+#billTipList .rrow{padding:10px 2px;border-bottom:1px solid var(--line)}
+#billTipList .rrow:last-child{border-bottom:0}
+#billTipList b{font-weight:600}
+#billTipList small{display:block;color:var(--muted);font-size:.84rem;margin-top:2px}
+#billTipList .acts{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:2px}
+#billTipList .acts button{background:none;border:0;padding:6px 0;font-weight:800;color:var(--accent);text-align:left}
+#billTipList .acts button.no{color:var(--muted);font-weight:700}
+#txWhy{margin:0 0 12px;font-size:.85rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+#txWhy[hidden]{display:none}
+.owmeter{height:8px;border-radius:99px;background:var(--left);overflow:hidden;margin:6px 0 4px}
+.owmeter i{display:block;height:100%;background:var(--good);border-radius:99px}
+.owsum{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted);margin:0 0 6px}
+.settings button.quiet{color:var(--muted);font-weight:600;font-size:.92rem}
 #recurList .top2{display:flex;justify-content:space-between;gap:8px}
 #recurList .top2 b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 #recurList small{color:var(--muted);font-size:.8rem}
@@ -652,6 +665,7 @@ h3.igh{margin:0}
     </section>
     <section id="cardSec" hidden></section>
     <section id="cardPaySec" hidden></section>
+    <section id="owedSec" hidden></section>
     <section>
       <div class="h2row"><h2>Money in</h2><span class="amt good" id="moneyInTotal"></span></div>
       <p class="sub">Extra money adds to this paycheck. Deposits from your bank show up here until you tap them and choose how they count.</p>
@@ -669,6 +683,7 @@ h3.igh{margin:0}
   <!-- BILLS -->
   <div class="panel" id="tab-bills" hidden>
     <div class="billseg" role="tablist" aria-label="Which bills"><button role="tab" data-bview="pay" aria-selected="true">This check</button><button role="tab" data-bview="all" aria-selected="false">All bills</button><button role="tab" data-bview="year" aria-selected="false">Yearly</button></div>
+    <div class="askbox" id="billTips" hidden><h3>Bill check-up</h3><p class="sub">Your bank shows these a little differently than your plan. Fixing them puts each bill in the right paycheck.</p><div id="billTipList"></div></div>
     <section id="allBills" hidden></section>
     <section id="yearBills" hidden></section>
     <section class="tline" id="payBills">
@@ -765,6 +780,7 @@ h3.igh{margin:0}
       <button id="restore">Restore from a backup</button>
       <input type="file" id="restoreFile" accept="application/json,.json" hidden>
       <button id="signOut" class="danger">Sign out</button>
+      <button id="signOutAll" class="danger quiet">Sign out on all devices</button>
     </section>
   </div>
   <p class="status" id="status" role="status" hidden></p>
@@ -783,6 +799,7 @@ h3.igh{margin:0}
   <h2 id="txTitle">Transaction</h2>
   <p class="sub" id="txSub"></p>
   <p id="txFrom" hidden></p>
+  <p id="txWhy" hidden></p>
   <p id="txAuto" hidden><span id="txAutoText"></span><button type="button" id="txUnmatch">Not this bill</button></p>
   <label for="txUse">How should this count?</label>
   <select id="txUse"></select>
@@ -1054,7 +1071,7 @@ const safeId=v=>/^[A-Za-z0-9_-]{1,40}$/.test(String(v||''))?String(v):uid();
 let state=null, dbRef=null, saveTimer=null, writing=Promise.resolve(), editing=null, offset=0;
 let tab='plan'; try{ tab=localStorage.getItem('pp-tab')||'plan'; }catch(e){}
 
-function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{},autoTx:{},noAuto:{},invSnap:{},rothEarly:{},rothLimit:{},lastBackup:'',backupLater:'',billCats:[],rollKeep:{},nwSnap:{},migr:{}}}
+function blank(){return {spendCats:DEFAULT_CATS(),paycheck:0,goal:0,anchor:'',bills:[],paid:{},spends:{},extras:{},txNote:{},bankFrom:'',rules:{},txSet:{},catRules:{},txCat:{},limits:{},seen:{},goals:[],manual:[],txSplit:{},rollover:{},recapSeen:{},notRecurring:{},autoTx:{},noAuto:{},invSnap:{},rothEarly:{},rothLimit:{},lastBackup:'',backupLater:'',billCats:[],rollKeep:{},nwSnap:{},migr:{},tipsDone:{}}}
 const BAD_KEYS=new Set(['__proto__','constructor','prototype']);
 const num=v=>{ v=+v; return isFinite(v)?v:0; };
 // copies an {id: value} map, keeping only safe keys and values that pass the check
@@ -1114,7 +1131,7 @@ function normalize(d){
   // net worth by day: cash, investments, debt (totals only)
   s.nwSnap=cleanMap(s.nwSnap,v=>{ if(!isObj(v)) return undefined; const f=x=>{ x=+x; return isFinite(x)&&Math.abs(x)<1e9?Math.round(x*100)/100:0; }; return {c:f(v.c),i:f(v.i),d:f(v.d)}; },k=>!!keyOk(k));
   { const ks=Object.keys(s.nwSnap).sort(); for(const k of ks.slice(0,Math.max(0,ks.length-400))) delete s.nwSnap[k]; }
-  for(const k of ['recapSeen','notRecurring','autoTx','noAuto']) s[k]=cleanMap(s[k],v=>v?1:undefined);
+  for(const k of ['recapSeen','notRecurring','autoTx','noAuto','tipsDone']) s[k]=cleanMap(s[k],v=>v?1:undefined);
   // keep only what the app knows about (drops anything unexpected, e.g. from an edited backup)
   const clean={}; for(const k of Object.keys(blank())) clean[k]=s[k];
   return clean;
@@ -1278,7 +1295,7 @@ function acctOf(t){ if(_acctFor!==accounts){ _acctFor=accounts; _acctMap={}; for
 // card companies, for card payments the bank only labels as a "loan payment"
 const CARD_WORDS=/\b(card|cards|synchrony|syf|sams|sam s|capital one|discover|amex|american express|citi|citibank|barclays|bank of america|bk of amer|boa|chase)\b/i;
 const NOT_CARD_LOANS=new Set(['LOAN_PAYMENTS_CAR_PAYMENT','LOAN_PAYMENTS_MORTGAGE_PAYMENT','LOAN_PAYMENTS_STUDENT_LOAN_PAYMENT','LOAN_PAYMENTS_BNPL','LOAN_PAYMENTS_EWA']);
-function isCardPayment(t){ // paying off a card: money moving between your own accounts, never spending
+function isCardPayBase(t){ // paying off a card, as the bank labels it
   const d=String(t.detail||'').toUpperCase();
   if(d==='LOAN_PAYMENTS_CREDIT_CARD_PAYMENT') return true;
   const a=acctOf(t);
@@ -1287,6 +1304,35 @@ function isCardPayment(t){ // paying off a card: money moving between your own a
 }
 // interest and fees your bank charged (shown in red so they never hide inside spending)
 const FEE_TAGS={BANK_FEES_LATE_FEES:'Late fee',BANK_FEES_CASH_ADVANCE:'Cash advance fee',BANK_FEES_INTEREST_CHARGE:'Interest',BANK_FEES_OVERDRAFT_FEES:'Overdraft fee',BANK_FEES_INSUFFICIENT_FUNDS:'Overdraft fee',BANK_FEES_FOREIGN_TRANSACTION_FEES:'Foreign fee',BANK_FEES_ATM_FEES:'ATM fee',BANK_FEES_OTHER_BANK_FEES:'Fee'};
+// money that only passes through, found by matching amounts across your connected accounts:
+//  - a transfer out of checking that paid a connected card (e.g. a Robinhood card paid by a "Robinhood" transfer)
+//  - a PayPal or Venmo copy of a charge that also shows on your bank or card
+const WALLET=/\b(paypal|venmo|cash ?app)\b/i;
+let _pairs=null;
+function pairs(){
+  if(_pairs&&_pairs.tx===bankTx&&_pairs.ac===accounts) return _pairs;
+  const mirror=new Map(), dup=new Map(), used=new Set(), near=(a,b,n)=>Math.abs(parseD(a.date)-parseD(b.date))<=n*DAY;
+  const posted=bankTx.filter(t=>!t.pending);
+  const cardIn=posted.filter(t=>t.amount<0&&isCreditAcct(acctOf(t))&&isCardPayBase(t));
+  const outs=posted.filter(t=>t.amount>0&&!isCreditAcct(acctOf(t)));
+  const left=[];
+  for(const c of cardIn){ // payments the bank already calls card payments are matched first
+    const m=outs.find(o=>!used.has(o.id)&&isCardPayBase(o)&&Math.abs(o.amount+c.amount)<0.01&&near(o,c,6));
+    if(m) used.add(m.id); else left.push(c); }
+  for(const c of left){
+    const card=acctOf(c), inst=String((card&&card.institution)||c.institution||'');
+    const cand=outs.filter(o=>!used.has(o.id)&&!isCardPayBase(o)&&Math.abs(o.amount+c.amount)<0.01&&near(o,c,6)&&/^(TRANSFER_OUT|LOAN_PAYMENTS)/.test(String(o.category||'')));
+    let m=inst?cand.find(o=>namesMatch(inst,o.name)):null;
+    if(!m&&cand.length===1&&cand[0].amount>=100) m=cand[0];
+    if(m){ used.add(m.id); mirror.set(m.id,c); } }
+  const wal=t=>{ const a=acctOf(t); return a?!isCreditAcct(a)&&WALLET.test((a.institution||'')+' '+(a.name||'')):WALLET.test(String(t.institution||'')); };
+  const others=bankTx.filter(o=>o.amount>0&&!wal(o)&&!isCardPayBase(o)&&!mirror.has(o.id)), taken=new Set();
+  for(const w of bankTx){ if(!(w.amount>0)||!wal(w)||isCardPayBase(w)) continue;
+    const m=others.find(o=>!taken.has(o.id)&&Math.abs(o.amount-w.amount)<0.01&&(parseD(o.date)-parseD(w.date))>=-3*DAY&&(parseD(o.date)-parseD(w.date))<=5*DAY);
+    if(m){ taken.add(m.id); dup.set(w.id,m); } }
+  return _pairs={tx:bankTx,ac:accounts,mirror,dup};
+}
+function isCardPayment(t){ return isCardPayBase(t)||pairs().mirror.has(t.id); } // never spending, never a bill
 function feeTag(t){ if(!(t.amount>0)) return '';
   const d=String(t.detail||'').toUpperCase(), a=acctOf(t);
   const f=FEE_TAGS[d]||(a&&a.type==='credit'&&d==='TRANSFER_OUT_WITHDRAWAL'?'Cash advance':'');
@@ -1299,13 +1345,22 @@ function defaultUse(t){
 function validUse(t,u){
   if(!u||typeof u!=='string') return false;
   if(u==='spend'||u==='hide') return true;
-  if(u==='extra'||u==='pay') return t.amount<0;
+  if(u==='extra'||u==='pay'||u==='repay') return t.amount<0;
+  if(u==='owed') return t.amount>0;
   if(u.startsWith('bill:')) return t.amount>0&&state.bills.some(b=>'bill:'+b.id===u);
   return false;
 }
-function useOf(t){ // 'spend' | 'hide' | 'extra' | 'pay' | 'bill:<id>'
+// one company, two bills (like two pet policies): a payment that clearly fits the other bill's amount goes to that bill
+function siblingBill(t,r){
+  if(!r.startsWith('bill:')) return r;
+  const b=state.bills.find(x=>'bill:'+x.id===r); if(!b||!(b.amount>0)||Math.abs(t.amount-b.amount)<=Math.max(2,b.amount*0.1)) return r;
+  const fit=state.bills.filter(x=>x!==b&&!x.ended&&x.cat===b.cat&&x.amount>0&&Math.abs(t.amount-x.amount)<=Math.max(1,x.amount*0.02));
+  return fit.length===1?'bill:'+fit[0].id:r;
+}
+function useOf(t){ // 'spend' | 'hide' | 'extra' | 'pay' | 'owed' | 'repay' | 'bill:<id>'
   const set=state.txSet[t.id]; if(validUse(t,set)) return set;
-  const r=ruleFor(t); if(validUse(t,r)) return r;
+  const pr=pairs(); if(pr.mirror.has(t.id)||pr.dup.has(t.id)) return 'hide'; // matched across accounts: stronger than a name rule
+  const r=ruleFor(t); if(validUse(t,r)&&!(r==='spend'&&isCardPayBase(t))) return siblingBill(t,r); // a card payment is never spending, whatever a rule says
   return defaultUse(t);
 }
 function autoCat(t){
@@ -1382,20 +1437,21 @@ function owedAt(a,k){ // what a card owed at the start of day k: today's balance
 function cardFlow(p){
   if(_cf[p.key]) return _cf[p.key];
   const s=keyD(p.start), e=keyD(p.end), by={}, pays=[], fromChecking=[];
-  const row=a=>by[a.account_id]||(by[a.account_id]={a,charged:0,paid:0,pending:0,fees:0});
+  const row=a=>by[a.account_id]||(by[a.account_id]={a,charged:0,paid:0,pending:0,fees:0,owed:0,hid:0});
   for(const a of accounts) if(a.type==='credit') row(a);
   for(const t of bankTx){
     if(t.date<s||t.date>=e) continue;
     const a=acctOf(t);
     if(isCreditAcct(a)){ const r=row(a);
-      if(t.pending){ if(t.amount>0){ r.pending+=t.amount; r.charged+=t.amount; } continue; }
-      if(payIn(t)){ r.paid-=t.amount; pays.push({t,card:a}); }
-      else { r.charged+=t.amount; if(t.amount>0&&String(t.category||'')==='BANK_FEES') r.fees+=t.amount; }
+      if(!t.pending&&payIn(t)){ r.paid-=t.amount; pays.push({t,card:a}); continue; }
+      if(t.pending){ if(!(t.amount>0)) continue; r.pending+=t.amount; }
+      r.charged+=t.amount; if(t.amount>0&&String(t.category||'')==='BANK_FEES') r.fees+=t.amount;
+      if(t.amount>0){ const u=useOf(t); if(u==='owed') r.owed+=t.amount; else if(u==='hide') r.hid+=t.amount; }
     } else if(payOut(t)){ const c=cardMatch(t); fromChecking.push({t,c}); if(!c) pays.push({t,card:null}); }
   }
   const cards=Object.values(by), cardPaid=cards.reduce((x,r)=>x+r.paid,0);
   return _cf[p.key]={cards,pays,fromChecking,charged:cards.reduce((x,r)=>x+r.charged,0),cardPaid,
-    paid:pays.reduce((x,q)=>x+Math.abs(q.t.amount),0),notConnected:pays.filter(q=>!q.card).reduce((x,q)=>x+q.t.amount,0),pending:cards.reduce((x,r)=>x+r.pending,0)};
+    owed:cards.reduce((x,r)=>x+r.owed,0),hid:cards.reduce((x,r)=>x+r.hid,0),paid:pays.reduce((x,q)=>x+Math.abs(q.t.amount),0),notConnected:pays.filter(q=>!q.card).reduce((x,q)=>x+q.t.amount,0),pending:cards.reduce((x,r)=>x+r.pending,0)};
 }
 function spentSplit(F){ // what you bought this paycheck, by where it was paid from
   let card=0, debit=0, other=0;
@@ -1437,7 +1493,8 @@ function txRow(t,skipped){
   const u=useOf(t), bill=u.startsWith('bill:')?state.bills.find(b=>'bill:'+b.id===u):null;
   const dep=t.amount<0;
   const a=acctOf(t), kind=!dep&&a?(a.type==='credit'?'Card'+(a.mask?' ••'+a.mask:''):a.type==='depository'?'Debit':''):'';
-  const why=u==='pay'?'Your paycheck':u==='extra'?'Extra money':skipped?(bill?'Paid bill: '+bill.name:isCardPayment(t)&&!(validUse(t,state.txSet[t.id])||validUse(t,ruleFor(t)))?'Card payment · not spending':(validUse(t,state.txSet[t.id])||validUse(t,ruleFor(t)))?(dep?'Not counted':'Hidden'):(dep?'Money in · tap to count it as extra money':'Not counted as spending')):(dep?'Refund · lowers your spending':state.txSplit[t.id]?'Split: '+[...new Set(txParts(t).map(([c])=>cats()[c]||'Other'))].join(', '):cats()[catOf(t)]);
+  const dupOf=pairs().dup.get(t.id), dupA=dupOf&&acctOf(dupOf);
+  const why=u==='pay'?'Your paycheck':u==='extra'?'Extra money':u==='owed'?'For someone else · not your spending':u==='repay'?'Paying you back':skipped?(bill?'Paid bill: '+bill.name:isCardPayment(t)&&!validUse(t,state.txSet[t.id])?'Card payment · not spending':dupOf&&!validUse(t,state.txSet[t.id])?'Also on '+(dupA?cardName(dupA):dupOf.institution||'your bank')+' · counted there':(validUse(t,state.txSet[t.id])||validUse(t,ruleFor(t)))?(dep?'Not counted':'Hidden'):(dep?'Money in · tap to count it as extra money':'Not counted as spending')):(dep?'Refund · lowers your spending':state.txSplit[t.id]?'Split: '+[...new Set(txParts(t).map(([c])=>cats()[c]||'Other'))].join(', '):cats()[catOf(t)]);
   const isNew=!state.seen[t.id]&&(!skipped||isUndecidedDeposit(t));
   const dotC=!skipped&&u==='spend'&&!dep?cdot(txParts(t)[0][0]):'';
   return `<div class="row ${skipped?'skipped':''}"><button class="name" data-tx="${esc(t.id)}"><span class="txname"><b>${isNew?'<span class="newdot" title="New"></span>':dotC}${esc(t.name||'Purchase')}${a&&a.type==='credit'&&!dep?'':`<span class="btag">${esc(t.institution||'Bank')}</span>`}${kind?`<span class="btag kind">${esc(kind)}</span>`:''}${feeTag(t)}${t.pending?'<span class="btag pend">pending</span>':''}</b><small>${esc(fmt(parseD(t.date),{weekday:'short',month:'short',day:'numeric'}))} · ${esc(why)}</small>${noteHtml(state.txNote[t.id])}</span>${dep?`<span class="amt good">+${money(-t.amount)}</span>`:`<span class="amt">${money(t.amount)}</span>`}</button></div>`;
@@ -1611,7 +1668,7 @@ $('tabbar').onclick=e=>{const b=e.target.closest('[data-tab]'); if(b) showTab(b.
 document.addEventListener('click',e=>{const g=e.target.closest('[data-go]'); if(g) showTab(g.dataset.go);});
 
 function render(){
-  _fig={}; _mt={}; _recur=null; _cf={}; _paidLists=null;
+  _fig={}; _mt={}; _recur=null; _cf={}; _paidLists=null; _tips=null;
   fillCatSelects();
   const ready=!!state.anchor;
   $('setup').hidden=ready;
@@ -1690,7 +1747,7 @@ function render(){
   if(tab==='invest') renderInvest();
 
   // ===== BILLS (timeline by due date) =====
-  renderBillAsk();
+  renderBillAsk(); renderBillTips();
   { const nPaid=items.filter(x=>paidSet.has(x.b.id)).length;
     $('billSum').textContent=items.length?(nPaid===items.length?'All paid':`${nPaid} of ${items.length} paid · ${money(due)} to go`):''; }
   if(!state.bills.length||(!items.length&&!state.bills.some(b=>!b.ended))) $('bills').innerHTML='<p class="empty">No bills yet. Add your first one below.</p>';
@@ -1761,7 +1818,7 @@ function render(){
     }).join('')+(live&&keys.some(k=>limitAt(k,p.key))&&dayN<14?`<p class="note" style="margin:6px 0 0">The small line on each bar is where you'd be if you spent evenly through day ${dayN} of 14.</p>`:'')+`<button class="catrow" data-limit="__pick"><small>+ Set a limit for another category</small></button>`
     :'<p class="empty">Nothing spent yet this paycheck.</p><button class="catrow" data-limit="__pick"><small>+ Set a spending limit</small></button>');
   }
-  renderSpendTop(ready,p,F); renderCardSec(ready,p); renderCardPays(ready,p);
+  renderSpendTop(ready,p,F); renderCardSec(ready,p); renderCardPays(ready,p); renderOwed();
   { // everyday spending list: what you typed in, plus purchases from your bank
     const kindOf=t=>{ const a=acctOf(t); return isCreditAcct(a)?'card':a&&a.type==='depository'?'debit':''; };
     const hasCard=bank.use.some(t=>kindOf(t)==='card'), hasDebit=bank.use.some(t=>kindOf(t)==='debit');
@@ -1825,7 +1882,11 @@ function renderSpendTop(ready,p,F){
   let say='';
   if(connected&&(cf.charged>0.004||cf.cardPaid>0.004)){
     say=`You put <b>${money(cf.charged)}</b> on cards${cf.pending>0.004?` (${money(cf.pending)} still pending)`:''} and paid <b>${money(cf.cardPaid)}</b> toward them, so `+(Math.abs(owe)<1?'what you owe stayed about the same.':`you owe <b style="color:var(${owe>0?'--bad':'--good'})">${money(Math.abs(owe))} ${owe>0?'more':'less'}</b> than when this paycheck started.`);
-    const extra=cf.charged-sp.card; if(extra>=1) say+=` That includes ${money(extra)} of bills, interest or fees charged to cards.`;
+    const extra=cf.charged-sp.card, bits=[];
+    if(cf.owed>=1) bits.push(`${money(cf.owed)} you're being paid back for`);
+    if(cf.hid>=1) bits.push(`${money(cf.hid)} you've hidden from spending`);
+    const rest=extra-cf.owed-cf.hid; if(rest>=1) bits.push(`${money(rest)} of bills, interest or fees`);
+    if(bits.length) say+=` That includes ${bits.length>1?bits.slice(0,-1).join(', ')+' and '+bits[bits.length-1]:bits[0]}.`;
   }
   if(cf.notConnected>0.004) say+=(say?' ':'')+`${money(cf.notConnected)} went to cards that aren't connected to the app.`;
   $('spTop').hidden=false;
@@ -1901,6 +1962,19 @@ function renderCardPays(ready,p){
   $('cardPaySec').hidden=false;
   $('cardPaySec').innerHTML=`<div class="h2row"><h2>Card payments</h2><span class="amt" style="color:var(--good)">${money(cf.paid)}</span></div><p class="sub">Money moved to your cards. Not counted as spending, since the purchases already were.</p>`
     +rows.map(r=>`<div class="row"><button class="name" data-tx="${esc(r.t.id)}"><span class="txname"><b>${esc(r.t.name||'Card payment')}${r.t.pending?'<span class="btag pend">pending</span>':''}</b><small>${esc(ddate(parseD(r.d)))} · ${esc(r.sub)}</small></span><span class="amt">${money(Math.abs(r.t.amount))}</span></button></div>`).join('');
+}
+// ---- paid for someone else, and their payments back ----
+function renderOwed(){
+  const out=[], back=[]; for(const t of bankTx){ const u=useOf(t); if(u==='owed') out.push(t); else if(u==='repay') back.push(t); }
+  if(!out.length&&!back.length){ $('owedSec').hidden=true; return; }
+  const lent=out.reduce((a,t)=>a+t.amount,0), got=back.reduce((a,t)=>a-t.amount,0), left=Math.round((lent-got)*100)/100;
+  const pct=lent>0?Math.min(100,got/lent*100):0, byDate=(a,c)=>a.date<c.date?1:-1;
+  $('owedSec').hidden=false;
+  $('owedSec').innerHTML=`<div class="h2row"><h2>Being paid back</h2><span class="amt" style="color:var(${left>0.004?'--bad':'--good'})">${left>0.004?money(left)+' to go':'All paid back ✓'}</span></div>
+    <p class="sub">What you paid for someone else, and what they've sent back. None of it counts as your spending.</p>
+    ${lent>0?`<div class="owmeter" aria-hidden="true"><i style="width:${pct.toFixed(1)}%"></i></div><div class="owsum"><span>${money(got)} paid back</span><span>of ${money(lent)}</span></div>`:''}`
+    +out.sort(byDate).map(t=>txRow(t,false)).join('')+back.sort(byDate).map(t=>txRow(t,false)).join('')
+    +`<p class="note" style="margin:6px 0 0">Tap a purchase or a deposit and choose "For someone else" or "Someone paying me back" to add it here.</p>`;
 }
 function renderFlowBox(ready,p){ // where checking money went this paycheck
   const dep=accounts.filter(a=>a.type==='depository'), chk=dep.filter(a=>String(a.subtype||'').toLowerCase()==='checking'), use=new Set((chk.length?chk:dep).map(a=>a.account_id));
@@ -2522,6 +2596,57 @@ $('recurList').onclick=e=>{
   $('fWhen').textContent='Future charges from this store will be matched to this bill automatically.';
 };
 
+// ---- bill check-up: due days and amounts your bank says are different from the plan ----
+const ord=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
+let _tips=null;
+function movesPaycheck(due,day){ // would the real day land in a different paycheck than the planned one, in the next 3 months?
+  const t0=today(), idx=d=>Math.floor(Math.round((d-parseD(state.anchor))/DAY)/14), at=(y,m,n)=>new Date(y,m,Math.min(n,new Date(y,m+1,0).getDate()),12);
+  for(let k=0;k<3;k++){ const y=t0.getFullYear(), m=t0.getMonth()+k, dp=at(y,m,due);
+    const da=[-1,0,1].map(j=>at(y,m+j,day)).sort((a,c)=>Math.abs(a-dp)-Math.abs(c-dp))[0];
+    if(idx(da)!==idx(dp)) return true; }
+  return false;
+}
+function billTips(){
+  if(_tips) return _tips; _tips=[];
+  if(!bankTx.length||!state.anchor) return _tips;
+  const t0=today(), cur=period(currentIndex()).key, cut=keyD(addD(t0,-100)), gap=(a,b)=>{ const d=Math.abs(a-b); return Math.min(d,30-d); };
+  for(const b0 of state.bills){
+    const b=billAt(b0,cur); if(!b||b0.ended) continue;
+    const pays=paidList(b0.id), groups=[]; // a bill paid in two parts counts once
+    for(const t of pays){ const k=billPeriodKey(b0,t.date)||t.date, g=groups.find(x=>x.k===k); if(g){ g.amt+=t.amount; if(t.date<g.d) g.d=t.date; } else groups.push({k,d:t.date,amt:t.amount}); }
+    const recent0=groups.filter(g=>g.d>=cut).slice(0,2), recent=recent0.length===2&&Math.abs(recent0[0].amt-recent0[1].amt)>Math.max(3,Math.max(recent0[0].amt,recent0[1].amt)*0.15)?[]:recent0, add=(kind,v,text,act)=>_tips.push({key:kind+':'+b0.id+':'+v,kind,v,b0,text,act});
+    if(b.freq==='monthly'&&b.due&&recent.length===2){
+      const d1=parseD(recent[0].d).getDate(), d2=parseD(recent[1].d).getDate();
+      if(gap(d1,d2)<=2){ const day=Math.abs(d1-d2)<=2?Math.min(d1,d2):Math.max(d1,d2);
+        if(gap(day,b.due)>=2&&movesPaycheck(b.due,day)) add('day',day,`${d1===d2?`Came out on the ${ord(d1)} the last two times`:`Came out on the ${ord(d2)} and the ${ord(d1)}`}. Your plan says the ${ord(b.due)}.`,`Use the ${ord(day)}`); } }
+    if((b.freq==='monthly'||b.freq==='months')&&b.amount>0&&recent.length===2){
+      const a1=recent[0].amt, a2=recent[1].amt, th=Math.max(5,b.amount*0.08);
+      if((a1-b.amount>th&&a2-b.amount>th)||(b.amount-a1>th&&b.amount-a2>th)){ const v=Math.round((a1+a2)/2);
+        add('amt',v,`The last two were ${money(a2)} and ${money(a1)}. Your plan has ${money(b.amount)}.`,`Use ${money0(v)}`); } }
+    if(b.freq==='monthly'&&b.amount>0){
+      let last=pays[0]?pays[0].date:'';
+      for(const t of bankTx) if(!t.pending&&t.amount>0&&t.date>last&&!isCardPayment(t)&&Math.abs(t.amount-b.amount)<=Math.max(2,b.amount*0.3)&&namesMatch(b.name,t.name)) last=t.date;
+      if(last&&last<keyD(addD(t0,-40))&&last>=keyD(addD(t0,-130))&&(b0.from||'')<=last)
+        add('gone',last,`Hasn't come out since ${fmt(parseD(last))}. It may have moved to a card that isn't connected, or been canceled.`,'Edit bill'); }
+  }
+  return _tips=_tips.filter(x=>!state.tipsDone[x.key]);
+}
+function renderBillTips(){
+  const list=billTips().slice(0,6);
+  $('billTips').hidden=!list.length; if(!list.length){ $('billTipList').innerHTML=''; return; }
+  $('billTipList').innerHTML=list.map(x=>`<div class="rrow"><b>${esc(x.b0.name)}</b><small>${esc(x.text)}</small><div class="acts"><button type="button" data-tipgo="${esc(x.key)}">${esc(x.act)}</button><button type="button" class="no" data-tipno="${esc(x.key)}">${x.kind==='gone'?'Dismiss':'Keep the plan'}</button></div></div>`).join('');
+}
+$('billTipList').onclick=e=>{
+  const n=e.target.closest('[data-tipno]'); if(n){ state.tipsDone[n.dataset.tipno]=1; save(); return; }
+  const y=e.target.closest('[data-tipgo]'); if(!y) return;
+  const x=billTips().find(z=>z.key===y.dataset.tipgo); if(!x) return;
+  const cur=period(currentIndex()).key;
+  if(x.kind==='gone'){ openDlg(x.b0,cur); return; }
+  const v=pickBill(x.b0); if(x.kind==='day') v.due=x.v; else v.amount=x.v;
+  changeBill(x.b0,v,cur); state.tipsDone[x.key]=1; save();
+  status(x.kind==='day'?`${x.b0.name} is now due on the ${ord(x.v)}, from this paycheck on.`:`${x.b0.name} is now ${money(x.v)}, from this paycheck on.`);
+};
+
 // ---- events: spending ----
 let catSig='';
 function catOptions(){ return activeCats().map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join(''); }
@@ -2697,6 +2822,7 @@ function acctLabel(t){ // e.g. "Chase Total Checking ••1234 · Debit"
   const kind=a.type==='credit'?'Credit card':a.type==='loan'?'Loan':a.type==='investment'?'Investment':sub==='checking'?'Debit':sub==='savings'?'Savings':sub?sub.replace(/\b\w/g,c=>c.toUpperCase()):'';
   return full+(a.mask?' ••'+a.mask:'')+(kind?' · '+kind:'');
 }
+$('txUse').addEventListener('change',()=>{ const v=$('txUse').value; if(v==='owed'||v==='repay') $('txRemember').checked=false; });
 function openTx(t){
   txEditing=t;
   if(!state.seen[t.id]){ state.seen[t.id]=1; save(); }
@@ -2706,13 +2832,20 @@ function openTx(t){
   const ab=state.autoTx[t.id]&&useOf(t).startsWith('bill:')?state.bills.find(b=>'bill:'+b.id===useOf(t)):null;
   $('txAuto').hidden=!ab; $('txAutoText').textContent=ab?`Matched automatically to ${ab.name}.`:'';
   $('txUse').innerHTML=t.amount<0
-    ?'<option value="pay">My paycheck (use this amount for this paycheck)</option><option value="extra">Extra money (adds to this paycheck)</option><option value="hide">Not counted (my own transfer or card payment)</option><option value="spend">Refund (lowers my spending)</option>'
-    :'<option value="spend">Everyday spending</option><option value="hide">Not spending (hide it)</option>'+state.bills.filter(b=>!b.ended||useOf(t)==='bill:'+b.id).map(b=>`<option value="bill:${esc(b.id)}">Paid bill: ${esc(b.name)}</option>`).join('');
+    ?'<option value="pay">My paycheck (use this amount for this paycheck)</option><option value="extra">Extra money (adds to this paycheck)</option><option value="hide">Not counted (my own transfer or card payment)</option><option value="spend">Refund (lowers my spending)</option><option value="repay">Someone paying me back</option>'
+    :'<option value="spend">Everyday spending</option><option value="hide">Not spending (hide it)</option><option value="owed">For someone else (they\'re paying me back)</option>'+state.bills.filter(b=>!b.ended||useOf(t)==='bill:'+b.id).map(b=>`<option value="bill:${esc(b.id)}">Paid bill: ${esc(b.name)}</option>`).join('');
   $('txUse').value=useOf(t);
   setCatSelect($('txCat'),catOf(t));
   $('txCatWrap').hidden=$('txUse').value!=='spend';
   $('txRememberText').textContent=`Do this every time for "${t.name||'this merchant'}"`;
-  $('txRemember').checked=true;
+  { // why the app counted it this way, when it matched it to another account
+    const pr=pairs(), mc=pr.mirror.get(t.id), dc=pr.dup.get(t.id); let w='';
+    if(mc){ const ca=acctOf(mc); w=`This paid your ${ca?cardName(ca):'card'} (the card shows a ${money(-mc.amount)} payment on ${fmt(parseD(mc.date))}). Card payments aren't spending or a bill, since the purchases already counted.`; }
+    else if(dc){ const da=acctOf(dc); w=`The same ${money(dc.amount)} charge shows on ${da?cardName(da):dc.institution||'your bank'} (${fmt(parseD(dc.date))}), so it's only counted there.`; }
+    else if(isCardPayBase(t)) w='A card payment. The purchases on the card already count as spending, so this one doesn\'t.';
+    $('txWhy').textContent=w; $('txWhy').hidden=!w;
+    // card payment names carry a random code, so an "every time" rule from one would only catch some of them
+    $('txRemember').checked=!(mc||dc||isCardPayBase(t)); }
   $('txNote').value=state.txNote[t.id]||'';
   const sp=state.txSplit[t.id];
   splitRows=sp?sp.map(x=>({cat:x.cat,amt:x.amt})):[];
@@ -3076,6 +3209,7 @@ function demoState(){
     ],
     billCats:[{id:'bcholiday1',label:'Holidays & gifts'}],
     spends:{[anchor]:[{id:'m1',name:'Farmers market',amount:22,cat:'groceries'}]},
+    txSet:{'ow1':'owed','ow2':'repay'},
     limits:{dining:120,groceries:250}, rules:{'city power light':'bill:d4','robinhood':'bill:d7','transfer to savings':'bill:d6','streambox plus':'bill:d8'},
     manual:[{id:'h2',name:'Second savings',type:'savings',balance:5200,apy:3.8,updated:addD(t,-12).toISOString()},{id:'moo',name:'Moomoo cash sweep',type:'brokercash',balance:5000,apy:8.1,ends:keyD(addD(t,41)),updated:addD(t,-3).toISOString()}],
     goals:[{id:'g1',name:'Emergency fund',target:6000,account:'acc-sav',monthly:433},{id:'g2',name:'Trip to Hawaii',target:2500,saved:640,monthly:150}]
@@ -3103,6 +3237,17 @@ function demoTx(){
   out.push({id:'x3',date:d(2),name:'Venmo from Sam',amount:-40,pending:false,category:'TRANSFER_IN',detail:'TRANSFER_IN_ACCOUNT_TRANSFER',institution:'Demo Bank',account_id:'acc-chk'});
   for(const n of [12,42,72]) out.push({id:'tu'+n,date:d(n),name:'Tunes Unlimited',amount:10.99,pending:false,category:'ENTERTAINMENT',detail:'ENTERTAINMENT_MUSIC_AND_AUDIO',institution:'Demo Card',account_id:'acc-cc2'});
   for(const n of [3,33,63,93]) out.push({id:'sp'+n,date:d(n),name:'StreamBox Plus',amount:n===3?13.99:12.99,pending:false,category:'ENTERTAINMENT',detail:'ENTERTAINMENT_TV_AND_MOVIES',institution:'Demo Card',account_id:'acc-cc1'});
+  out.push({id:'x7',date:d(31),name:'City Power & Light',amount:131.8,pending:false,category:'RENT_AND_UTILITIES',detail:'RENT_AND_UTILITIES_GAS_AND_ELECTRICITY',institution:'Demo Bank',account_id:'acc-chk'});
+  // a brokerage card: paid by a transfer that looks just like a Roth contribution
+  out.push({id:'gc1',date:d(16),name:'Pet Supply Co',amount:640,pending:false,category:'GENERAL_MERCHANDISE',detail:'GENERAL_MERCHANDISE_PET_SUPPLIES',institution:'Robinhood',account_id:'acc-cc4'});
+  out.push({id:'ow1',date:d(15),name:'Furniture Outlet',amount:420,pending:false,category:'HOME_IMPROVEMENT',detail:'HOME_IMPROVEMENT_FURNITURE',institution:'Robinhood',account_id:'acc-cc4'});
+  out.push({id:'ow2',date:d(14),name:'Zelle payment from Mom',amount:-250,pending:false,category:'TRANSFER_IN',detail:'TRANSFER_IN_ACCOUNT_TRANSFER',institution:'Demo Bank',account_id:'acc-chk'});
+  out.push({id:'gc2',date:d(9),name:'Payment',amount:-500,pending:false,category:'LOAN_PAYMENTS',detail:'LOAN_PAYMENTS_CREDIT_CARD_PAYMENT',institution:'Robinhood',account_id:'acc-cc4'});
+  out.push({id:'gc3',date:d(7),name:'Robinhood',amount:500,pending:false,category:'TRANSFER_OUT',detail:'TRANSFER_OUT_INVESTMENT_AND_RETIREMENT_FUNDS',institution:'Demo Bank',account_id:'acc-chk'});
+  // PayPal shows the same music charge the card does
+  out.push({id:'pp1',date:d(13),name:'Tunes Unlimited',amount:10.99,pending:false,category:'ENTERTAINMENT',detail:'ENTERTAINMENT_MUSIC_AND_AUDIO',institution:'PayPal',account_id:'acc-pp'});
+  // a subscription that stopped showing up
+  out.push({id:'cs1',date:d(75),name:'Cloud Storage',amount:2.99,pending:false,category:'GENERAL_SERVICES',detail:'GENERAL_SERVICES_OTHER_GENERAL_SERVICES',institution:'Demo Bank',account_id:'acc-chk'});
   out.push({id:'x6',date:d(1),name:'City Power & Light',amount:134.27,pending:false,category:'RENT_AND_UTILITIES',detail:'RENT_AND_UTILITIES_GAS_AND_ELECTRICITY',institution:'Demo Bank',account_id:'acc-chk'});
   return out;
 }
@@ -3117,7 +3262,7 @@ function demoInvTx(){ const t=today(), out=[];
   return out; }
 function demoPlaid(body){
   const now=new Date().toISOString();
-  if(body.action==='list') return {banks:[{item_id:'i1',institution:'Demo Bank',status:'ok',last_synced:now},{item_id:'i2',institution:'Demo Card',status:'ok',last_synced:now,consent_expires:addD(new Date(),10).toISOString()},{item_id:'i3',institution:'Demo Brokerage',status:'ok',last_synced:now},{item_id:'i4',institution:'Demo Store Bank',status:'ok',last_synced:now}]};
+  if(body.action==='list') return {banks:[{item_id:'i1',institution:'Demo Bank',status:'ok',last_synced:now},{item_id:'i2',institution:'Demo Card',status:'ok',last_synced:now,consent_expires:addD(new Date(),10).toISOString()},{item_id:'i3',institution:'Demo Brokerage',status:'ok',last_synced:now},{item_id:'i4',institution:'Demo Store Bank',status:'ok',last_synced:now},{item_id:'i5',institution:'Robinhood',status:'ok',last_synced:now},{item_id:'i6',institution:'PayPal',status:'ok',last_synced:now}]};
   if(body.action==='refresh'){ const t=today();
     return {banks:demoPlaid({action:'list'}).banks.map(b=>({...b,fresh:true})),accounts:demoPlaid({action:'balances'}).accounts,changed:true,inv_items:['i3'],holdings:demoHoldings(),inv_tx:demoInvTx(),
       liab_items:[{item_id:'i2',status:'ok'},{item_id:'i4',status:'consent'}],
@@ -3129,6 +3274,8 @@ function demoPlaid(body){
     {account_id:'acc-cc1',name:'Rewards Card',mask:'4321',type:'credit',subtype:'credit card',current:412.47,institution:'Demo Card',item_id:'i2'},
     {account_id:'acc-cc2',name:'Cash Back Card',mask:'8765',type:'credit',subtype:'credit card',current:118.3,institution:'Demo Card',item_id:'i2'},
     {account_id:'acc-cc3',name:'Store Card',mask:'2468',type:'credit',subtype:'credit card',current:236.9,institution:'Demo Store Bank',item_id:'i4'},
+    {account_id:'acc-cc4',name:'Gold Card',mask:'1357',type:'credit',subtype:'credit card',current:560,institution:'Robinhood',item_id:'i5'},
+    {account_id:'acc-pp',name:'PayPal Balance',mask:'',type:'depository',subtype:'paypal',current:0,available:0,institution:'PayPal',item_id:'i6'},
     {account_id:'acc-roth',name:'Roth IRA',mask:'9012',type:'investment',subtype:'roth',current:8420.55,available:12.4,institution:'Demo Brokerage',item_id:'i3'},
     {account_id:'acc-brk',name:'Individual',mask:'3456',type:'investment',subtype:'brokerage',current:2150.3,available:40,institution:'Demo Brokerage',item_id:'i3'}]};
   return {};
@@ -3327,6 +3474,13 @@ $('pwForm').onsubmit=async e=>{
   catch(err){ $('pwMsg').textContent=err.message||"Couldn't change your password. Try again."; }
   $('pwSave').disabled=false;
 };
+$('signOutAll').onclick=async()=>{
+  if(DEMO){ status('Signing out is turned off in the preview.'); return; }
+  if(!confirm('Sign out on every phone and computer that has your plan open, including this one? Use this if a device is lost.')) return;
+  clearDeviceData();
+  try{ const {error}=await sb.auth.signOut({scope:'global'}); if(error) throw error; }catch(e){ status("Couldn't reach the server, so other devices may still be signed in. Try again when you're online.",true); try{ await sb.auth.signOut({scope:'local'}); }catch(x){} }
+  location.reload();
+};
 $('signOut').onclick=async()=>{
   if(DEMO){ status('Signing out is turned off in the preview.'); return; }
   if(!confirm('Sign out on this device?')) return;
@@ -3413,9 +3567,11 @@ if(DEMO){
 }else{
   if(!window.supabase||!window.supabase.createClient){ showAuth("Couldn't load the sign-in tool. Check your connection and refresh.",true); $('aGo').disabled=true; }
   else {
+  // one time: clear any "lock when away" setting left from older versions, so the code is only asked for at sign-in
+  try{ if(!localStorage.getItem('pp-lock-v2')){ localStorage.removeItem('pp-lock'); localStorage.setItem('pp-lock-v2','1'); } }catch(e){}
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   sb.auth.onAuthStateChange((event,session)=>{
-    if(event==='SIGNED_OUT'&&startedFor){ location.reload(); return; }
+    if(event==='SIGNED_OUT'){ clearDeviceData(); if(startedFor){ location.reload(); return; } } // signed out (here or everywhere): nothing stays on this device
     if(event==='MFA_CHALLENGE_VERIFIED') return; // the code form carries on from here
     if(startedFor&&event!=='PASSWORD_RECOVERY') return;
     setTimeout(()=>gate(session,event==='PASSWORD_RECOVERY'),0); // never call sign-in functions inside this callback
