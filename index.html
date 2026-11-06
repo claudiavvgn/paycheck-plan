@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paycheck Plan</title>
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OSZeuj2sXsXfNQDQmhF1X5p8psk9HveO0pDCEARfMko=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-07TWc0HUwwDR+iC/pWg7UUCWATEBYc5zw+7h7vdNhJE=' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://xykgkhnegdmulyxqjhfc.supabase.co wss://xykgkhnegdmulyxqjhfc.supabase.co https://plaid.com https://*.plaid.com; frame-src https://cdn.plaid.com https://plaid.com https://*.plaid.com; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Paycheck">
@@ -2807,7 +2807,7 @@ $('spTop').onclick=e=>{ const b=e.target.closest('[data-sptop]'); if(!b) return;
   if(b.dataset.sptop==='paid'&&!$('cardPaySec').hidden){ $('cardPaySec').scrollIntoView({behavior:'smooth',block:'start'}); return; }
   spFilter='all'; render(); $('spListSec').scrollIntoView({behavior:'smooth',block:'start'}); };
 $('cardPaySec').onclick=e=>{ const b=e.target.closest('[data-tx]'); if(!b) return; const t=bankTx.find(x=>x.id===b.dataset.tx); if(t) openTx(t); };
-$('cardSec').onclick=e=>{ const b=e.target.closest('[data-liabok]'); if(b) relinkBank(b.dataset.liabok,'update'); };
+$('cardSec').onclick=e=>{ const b=e.target.closest('[data-liabok]'); if(b){ b.disabled=true; b.textContent='Opening…'; status('Opening secure bank connection…'); relinkBank(b.dataset.liabok,'update').finally(()=>{ b.disabled=false; b.textContent='Allow'; }); } };
 $('spends').onclick=e=>{
   if(e.target.closest('#toggleSkipped')){showSkipped=!showSkipped; render(); return;}
   const d=e.target.closest('[data-ent]'); if(d){ openEntry('s',d.dataset.ent); return; }
@@ -3158,7 +3158,7 @@ async function relinkBank(item_id,mode){ // fixes or updates the existing connec
   if(DEMO){ renderBankBar('Renewing a bank is turned off in the preview.'); return; }
   renderBankBar('Opening secure bank connection…'); loadPlaid().catch(()=>{});
   try{ const {link_token}=await callPlaid({action:'relink',item_id,accounts:mode==='accounts'}); try{localStorage.setItem('plaid_link_token',link_token); localStorage.setItem('plaid_link_mode',mode);}catch(e){} openLink(link_token,null,mode); }
-  catch(err){ renderBankBar("Couldn't open your bank: "+err.message); }
+  catch(err){ const m="Couldn't open your bank: "+err.message; renderBankBar(m); status(m,false,'bad'); }
 }
 function expiringBanks(){ // connections whose access ends within 30 days (some banks let you choose 6 months or a year)
   return banks.map(b=>{ const t=Date.parse(b.consent_expires||''); if(!isFinite(t)||b.status&&b.status!=='ok') return null; const days=Math.ceil((t-Date.now())/DAY); return days<=30?{b,days,date:new Date(t)}:null; }).filter(Boolean).sort((a,c)=>a.days-c.days);
